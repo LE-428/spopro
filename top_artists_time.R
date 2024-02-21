@@ -34,7 +34,7 @@
     
   }
   
-  top_artists_table <- top_artists_table[order(-top_artists_table$playtime),]
+  top_artists_table <- top_artists_table[order(-top_artists_table$playtime),] ### hier minus
   top_artists_table$playtime <- round(top_artists_table$playtime / 60000, digits = 0)
   
   output <- head(top_artists_table, top_x)

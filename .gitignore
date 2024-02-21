@@ -2,3 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
+api_creds.R
+DaveDaten/
+LeanderDaten/
+MoritzDaten/
+Inaktiv/
+StreamingHistory_music_0.json

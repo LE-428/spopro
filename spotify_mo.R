@@ -1,6 +1,6 @@
 {
-  install.packages("jsonlite")
-  install.packages("dplyr")
+  # install.packages("jsonlite")
+  # install.packages("dplyr")
   
 }
 
@@ -32,24 +32,24 @@ for (json_file in json_file_list) {
   loaded_data_list[[json_file]] <- loaded_data
 }
 
-all_data = bind_rows(loaded_data_list)
+all_mo = bind_rows(loaded_data_list)
 }
 
 
 {
-  y2014 <- extract_year("2014", all_data)
-  y2015 <- extract_year("2015", all_data)
-  y2016 <- extract_year("2016", all_data)
-  y2017 <- extract_year("2017", all_data)
-  y2018 <- extract_year("2018", all_data)
-  y2019 <- extract_year("2019", all_data)
-  y2020 <- extract_year("2020", all_data)
-  y2021 <- extract_year("2021", all_data)
-  y2022 <- extract_year("2022", all_data)
-  y2023 <- extract_year("2023", all_data)
+  # y2014 <- extract_year("2014", all_data)
+  # y2015 <- extract_year("2015", all_data)
+  # y2016 <- extract_year("2016", all_data)
+  # y2017 <- extract_year("2017", all_data)
+  # y2018 <- extract_year("2018", all_data)
+  # y2019 <- extract_year("2019", all_data)
+  # y2020 <- extract_year("2020", all_data)
+  # y2021 <- extract_year("2021", all_data)
+  # y2022 <- extract_year("2022", all_data)
+  # y2023 <- extract_year("2023", all_data)
 }
 
-all_mo = all_data
+# all_mo = all_data
 
 # Noch zu erledigen:
 # Top Tage (meiste Musik gehört) - ERLEDIGT, top_days_time

@@ -1,6 +1,6 @@
 {
-install.packages("jsonlite")
-install.packages("dplyr")
+# install.packages("jsonlite")
+# install.packages("dplyr")
 }
 
 
@@ -23,7 +23,7 @@ library(dplyr)
     loaded_data_list[[json_file]] <- loaded_data
   }
   
-  all_data = bind_rows(loaded_data_list)
+  all_le = bind_rows(loaded_data_list)
 }
 
 # {
@@ -35,20 +35,18 @@ library(dplyr)
 # }
 
 {
-y2015 <- extract_year("2015", all_data)
-y2016 <- extract_year("2016", all_data)
-y2017 <- extract_year("2017", all_data)
-y2018 <- extract_year("2018", all_data)
-y2019 <- extract_year("2019", all_data)
-y2020 <- extract_year("2020", all_data)
-y2021 <- extract_year("2021", all_data)
-y2022 <- extract_year("2022", all_data)
-y2023 <- extract_year("2023", all_data)
+# y2015 <- extract_year("2015", all_data)
+# y2016 <- extract_year("2016", all_data)
+# y2017 <- extract_year("2017", all_data)
+# y2018 <- extract_year("2018", all_data)
+# y2019 <- extract_year("2019", all_data)
+# y2020 <- extract_year("2020", all_data)
+# y2021 <- extract_year("2021", all_data)
+# y2022 <- extract_year("2022", all_data)
+# y2023 <- extract_year("2023", all_data)
 }
 
-all_leander = all_data
-
-rm(list=ls(all=TRUE)[sapply(mget(ls(all=TRUE)), class) == "data.frame"])
+# all_le = all_data
 
 
 # Noch zu erledigen:
