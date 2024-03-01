@@ -10,7 +10,7 @@
 # 342              Gzuz      554
 # 208        RAF Camora      324
 
-  top_artists_time <- function(data_table = all_data, top_x){
+top_artists_time <- function(data_table = all_data, top_x){
     
   data_table <- data.frame(master_metadata_album_artist_name = data_table$master_metadata_album_artist_name, ms_played = data_table$ms_played) 
   
@@ -41,4 +41,4 @@
   
   return(output)
   
-  }
+}
