@@ -1,3 +1,10 @@
 # Analysis of Spotify All-time-history with R
 
 Download your Spotify extended streaming history and take a look at your favorite songs, albums etc.
+
+## Ideas
+
++ World map showing from which country/IP-address you have connected in the pas
++ Favorite Genres and favorite artists of these genres (plot/animation)
++ Most skipped track??
++ ... additions?
