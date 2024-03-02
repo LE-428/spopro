@@ -101,6 +101,7 @@ add_api_data <- function(data_table = all_data, access = access_token) {
   }
   
   # Die Tabellen werden wieder zusammengefügt anhand von zusammengehörigen Track ids und Künstlernamen
+    
   data_table <- unique(data_table)
   output_table <- unique(output_table)
   artist_ids <- unique(artist_ids)
