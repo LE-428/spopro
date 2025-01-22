@@ -6,5 +6,4 @@ Download your Spotify extended streaming history and take a look at your favorit
 
 + World map showing from which country/IP-address you have connected in the past
 + Favorite genres and favorite artists of these genres (plot/animation)
-+ Most skipped track??
 + ... additions?

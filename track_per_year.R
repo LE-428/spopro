@@ -12,7 +12,7 @@
 # 63  2020-03-04                        Welcome To The Party    32
 # 185 2020-07-14                               Broken Hearts    32
 
-track_per_year <- function(data_table = all_data, top_x){
+track_per_year <- function(data_table = all_data, top_x = 5){
   data_table <- subset(data_table, ms_played > 30000) # Streams mit weniger als 30s Dauer rausfiltern, für Spotify zählt ein stream ebenfalls nach 30s
   
   days_table <- data.frame(ts = substr(data_table$ts, 1, 10))

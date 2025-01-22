@@ -1,9 +1,26 @@
-# data_table Tabelle mit Rohdaten, top_x int Wert, ausgegeben werden die Top x Werte
+# data_table Tabelle mit Rohdaten, album_string: Name des Albums, artist_string: Name des Künstlers, 
+# exact_search_bool = TRUE, falls der Albumname exakt eingegeben wird
 
-top_album_tracks <- function(data_table, album_string, artist_string){
+
+# > top_album_tracks(all_le, "ye", "Kanye West", 1)
+# Track_Name Play_Count
+# 1                       Yikes         10
+# 2                  Ghost Town          6
+# 3 I Thought About Killing You          4
+# 4                 No Mistakes          4
+# 5              Violent Crimes          4
+# 6                    All Mine          3
+# 7              Wouldn't Leave          2
+
+top_album_tracks <- function(data_table, album_string, artist_string, exact_search_bool = FALSE){
   data_table <- subset(data_table, ms_played > 30000) # Streams mit weniger als 30s Dauer rausfiltern, für Spotify zählt ein stream ebenfalls nach 30s 
   
-  aux_table <- data_table[(which(grepl(album_string, data_table$master_metadata_album_album_name, ignore.case=TRUE))),]
+  if (exact_search_bool == TRUE) {
+    aux_table <- data_table[(which(grepl(paste0("^", album_string, "$"), data_table$master_metadata_album_album_name, ignore.case=TRUE))),]
+  } else if (exact_search_bool == FALSE) {
+    aux_table <- data_table[(which(grepl(album_string, data_table$master_metadata_album_album_name, ignore.case=TRUE))),]
+  }
+  #aux_table <- data_table[(which(grepl(album_string, data_table$master_metadata_album_album_name, ignore.case=TRUE)x = )),]
   
   if(!missing(artist_string)) {
     aux_table <- aux_table[(which(grepl(artist_string, aux_table$master_metadata_album_artist_name, ignore.case=TRUE))),]
@@ -11,6 +28,12 @@ top_album_tracks <- function(data_table, album_string, artist_string){
   
   track_plays <- table(aux_table$master_metadata_track_name)
   
-  sortierte_häufigkeiten <- sort(track_plays, decreasing = TRUE)
-  return(sortierte_häufigkeiten)
+  sorted_frequencies <- sort(track_plays, decreasing = TRUE)
+  # In Tabelle umwandeln
+  result_table <- data.frame(
+    Track_Name = names(sorted_frequencies),
+    Play_Count = as.integer(sorted_frequencies)
+  )
+  return(result_table)
 }
+

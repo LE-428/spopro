@@ -7,6 +7,7 @@
 #       plays first_play
 # 1     7     2022-05-11
 
+
 track_listening_counter_date <- function(data_table, track_string, exact_search_bool = FALSE){
   if (exact_search_bool == TRUE) {
     aux_table <- data_table[(which(grepl(paste0("^", track_string, "$"), data_table$master_metadata_track_name, ignore.case=TRUE))),]
