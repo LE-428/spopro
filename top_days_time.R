@@ -14,7 +14,7 @@
 # 5 2022-09-10     324
 
 
-top_days_time <- function(data_table, top_x){
+top_days_time <- function(data_table, top_x = 5){
   days_table <- data.frame(ts = substr(data_table$ts, 1, 10))
   days_table_unique <- unique(days_table)
   for(i in 1:length(days_table_unique$ts)){

@@ -11,12 +11,13 @@
 
 
 {
+library(tidyr)
 library(dplyr)
 library(roxygen2)
 }
 
 
-activity_time <- function(data_table){
+activity_time_plot <- function(data_table){
   # print(head(data_table))
   data_table <- subset(data_table, ms_played > 30000 & conn_country == "DE", select=c(ts, ms_played)) # Streams mit weniger als 30s Dauer rausfiltern, für Spotify zählt ein stream ebenfalls nach 30s
   #print(head(data_table))

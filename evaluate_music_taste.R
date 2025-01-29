@@ -35,6 +35,7 @@ evaluate_music_taste <- function(data_table_ext){
   
   music_taste_val <- average_artist_followers * ((3 * average_track_popularity + 1 * average_track_popularity) / 4 / 100)
   #print(music_taste_val)
+  print("Overall value:")
   return(music_taste_val)
 }
 

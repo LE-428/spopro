@@ -2,7 +2,7 @@
 
 # Details
 
-# > top_artists_time(y2017, 5)
+# > top_artists(y2017, 5)
 #         artist             playtime
 # 679               Sa4      768
 # 1               Drake      705
@@ -10,7 +10,7 @@
 # 342              Gzuz      554
 # 208        RAF Camora      324
 
-top_artists_time <- function(df, top_x = 5) {
+top_artists <- function(df, top_x = 5) {
   df %>%
     filter(!is.na(master_metadata_album_artist_name)) %>%             # NA-Werte entfernen
     group_by(master_metadata_album_artist_name) %>%                   # Gruppierung nach Künstlernamen
@@ -26,7 +26,7 @@ top_artists_time <- function(df, top_x = 5) {
     as.data.frame()                                                   # Ergebnis als DataFrame ausgeben
 }
 
-# top_artists_time <- function(data_table = all_data, top_x=1){
+# top_artists <- function(data_table = all_data, top_x=1){
 #     
 #   data_table <- data.frame(master_metadata_album_artist_name = data_table$master_metadata_album_artist_name, ms_played = data_table$ms_played) 
 #   
@@ -56,5 +56,5 @@ top_artists_time <- function(df, top_x = 5) {
 #   output <- head(top_artists_table, top_x)
 #   
 #   return(output)
-
-}
+#
+#}

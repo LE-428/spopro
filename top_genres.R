@@ -16,6 +16,7 @@ top_genres <- function(data_table_ext, top_x = 10){
   #print(head(data_table_ext, n = 50))
   #print(class(data_table_ext$artist_genres))
   
+  # Die Liste mit Genres eines Liedes aufspalten, falls mehrere angegeben
   genre_list <- strsplit(data_table_ext$artist_genres, ",")
   all_genres <- unlist(genre_list)
   #print(all_genres)

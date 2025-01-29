@@ -1,8 +1,9 @@
 #In welchen Ländern wurde Musik gehört
+{
 
 library(dplyr)
 
-country <- function(data = all_data){
+country_plot <- function(data = all_data){
   land <- table(data$conn_country)
   
   # land$häufigkeit <- summarise(land, frequency = n())
@@ -10,4 +11,6 @@ country <- function(data = all_data){
   print(land)
   pie(land[-c(1:1)])
   
+}
+
 }

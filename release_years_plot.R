@@ -5,7 +5,7 @@
 {
 
 
-top_release_years <- function(data_table_ext){
+release_years_plot <- function(data_table_ext){
     # Sicherstellen, dass die release_date-Spalte als Zeichenkette vorliegt
     data_table_ext$release_date <- as.character(data_table_ext$release_date)
     
