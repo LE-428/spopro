@@ -5,13 +5,17 @@ your_dataframe <- all_le
 your_extended_dataframe <- all_le_ext
 
 {
-  # Show the years included in the dataset
-  get_years(your_dataframe)
+  # Get a quick overview of the dataset
+  quick_stats(your_dataframe)
 }
 
 {
   # The total listening time of all your recorded streams in minutes
-  listening_time(your_dataframe)
+  all_years <- unique(substr(your_dataframe$ts, 1, 4))
+  for (year in all_years) {
+    print(paste(year, ":", listening_time(extract_year(year, your_dataframe)), "min"))
+  }
+  print(paste("All time:", listening_time(your_dataframe), "min"))
 }
 
 {
@@ -25,6 +29,13 @@ your_extended_dataframe <- all_le_ext
 }
 
 {
+  # Show the track listen counter for your favorite album
+  top_album <- top_albums(your_dataframe, top_x = 1)$Album_Name
+  print(top_album)
+  top_album_tracks(your_dataframe, album_string = top_album, exact_search_bool = TRUE)
+}
+
+{
   # Show the tracks, that you have listened to the most often within one day
   track_per_year(your_dataframe, top_x = 10)
 }
@@ -35,23 +46,49 @@ your_extended_dataframe <- all_le_ext
 }
 
 {
+  # Show the top tracks from most played artist
+  top_artist_name <- top_artists(your_dataframe, 1)$Artist_Name
+  print(top_artist_name)
+  artist_top_tracks(your_dataframe, top_x = 10, artist_string = top_artist_name)
+}
+
+{
   # Show the artists, that appear most often in songs with features
   top_featured_artists(your_dataframe, top_x = 10)
 }
 
 {
   # Show the top artists of each month by minutes played (use extract_year())
-  artist_month(your_dataframe)
+  recent_year <- last(unique(substr(your_dataframe$ts, 1, 4)))
+  print(recent_year)
+  recent_year_dataframe <- extract_year(recent_year, your_dataframe)
+  artist_month(recent_year_dataframe)
 }
 
 {
   # Show the tracks that have been played most often 
+  print("All time:")
   top_tracks(your_dataframe, top_x = 10)
+  print("Most recent year:")
+  top_tracks(recent_year_dataframe, top_x = 5)
+}
+
+{
+  # Show most popular tracks with incognito mode enabled
+  top_tracks(incognito(your_dataframe), top_x = 10)
+}
+
+{
+  # Plot the listening time over the years
+  time_year_plot(your_dataframe)
 }
 
 {
   # Plot with the minutes played per month
+  print("All time:")
   activity_month_plot(your_dataframe) 
+  print("Recent month:")
+  activity_month_plot(recent_year_dataframe)
 }
 
 {

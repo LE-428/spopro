@@ -16,7 +16,7 @@ top_featured_artists <- function(data_table, top_x = 10) {
    unlist() 
  # print((matches))
  # Splitte die Matches nach den gewünschten Trennzeichen
- split_matches <- str_split(matches, "(,\\sand\\s|,\\s|\\s&\\s|\\sand\\s|\\sfeat\\.\\s)", simplify = TRUE)
+ split_matches <- str_split(matches, "(\\s&\\swith\\s|\\s&\\sfeat.\\s|,\\sand\\s|,\\s|\\s&\\s|\\sand\\s|\\sfeat\\.\\s)", simplify = TRUE)
  # print(split_matches)
  # Filtere leere Strings aus und gebe den Vektor zurück
  non_empty_matches <- split_matches[split_matches != ""]

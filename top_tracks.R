@@ -37,7 +37,6 @@
     
     häufigkeit <- na.omit(häufigkeit)
     x_häufigsten_tracks <- head(häufigkeit, top_x)
-    
     print(x_häufigsten_tracks, n = top_x)
   }
   
