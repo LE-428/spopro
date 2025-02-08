@@ -5,7 +5,7 @@ options(shiny.maxRequestSize = 100*1024^2)  # Erhöht das Limit auf 50 MB
 
 
 # Lade deine Funktionen
-# source("Run/run_all.R")
+source("Run/run_all.R")
 
 
 ui <- fluidPage(
@@ -27,8 +27,17 @@ ui <- fluidPage(
                 multiple = TRUE)
       ,
       
+      
+      # Button zum manuellen Abrufen der API-Daten
+      actionButton("get_api_data", "Fetch API Data"),
+      
+      
       textOutput("api_status"),  # Zeigt den API-Status an
       
+      
+      # # Neue Textfelder für die Spotify Client ID und Client Secret
+      # textInput("client_id", "Spotify Client ID", placeholder = "Enter your Client ID here"),
+      # textInput("client_secret", "Spotify Client Secret", placeholder = "Enter your Client Secret here")
       
       # fileInput("file_csv", 
       #           tags$span("Upload CSV File (additional API-Data, view on ", 
@@ -38,9 +47,15 @@ ui <- fluidPage(
       #           multiple = FALSE)
     ),
     mainPanel(
+      
+      verbatimTextOutput("demo_comment"),
+      
+      br(),
+      
       verbatimTextOutput("quick_stats_comment"),
       # Textausgabe für quick_stats
       verbatimTextOutput("quick_stats_text"),
+      tableOutput("quick_stats_table"),
       
       br(),
       br(),
@@ -230,6 +245,16 @@ ui <- fluidPage(
 
 server <- function(input, output) {
   
+  # Standard-Daten aus einer Demo-CSV im Projektverzeichnis laden
+  default_data <- read.csv("demo.csv")  # Ersetze durch deinen tatsächlichen Dateipfad
+  
+  # Standardwerte für die Reactives setzen
+  data_combined <- reactiveVal(default_data)
+  data_extended <- reactiveVal(default_data)
+  
+  demo_comment <- reactiveVal("SHOWING DEMO DATASET")
+  
+  
   data_json <- reactive({
     req(input$file)
     temp_dir <- tempdir()
@@ -249,14 +274,22 @@ server <- function(input, output) {
   # })
   
   # Neue kombinierte Datenquelle:
-  data_combined <- reactive({
-    if (!is.null(input$file)) {
-      return(data_json())  # JSON wird priorisiert
-    # } else if (!is.null(input$file_csv)) {
-    #   return(data_csv())   # Falls keine JSON, nutze CSV
-    } else {
-      return(NULL)  # Falls gar nichts hochgeladen wurde
-    }
+  # data_combined <- reactive({
+  #   if (!is.null(input$file)) {
+  #     return(data_json())  # JSON wird priorisiert
+  #   # } else if (!is.null(input$file_csv)) {
+  #   #   return(data_csv())   # Falls keine JSON, nutze CSV
+  #   } else {
+  #     # return(default_data())  # Falls gar nichts hochgeladen wurde
+  #   }
+  # })
+  
+  # Beobachte Änderungen bei `data_json()` und aktualisiere `data_combined`
+  observeEvent(data_json(), {
+    data_combined(NULL)
+    data_combined(data_json())  # Überschreibt den Wert mit den neuen JSON-Daten
+    data_extended(NULL)  # Setzt data_extended zurück (leert es), bevor neue Daten geladen werden
+    demo_comment("")
   })
   
   # # Versuche, `add_api_data` mit den JSON-Daten aufzurufen
@@ -276,23 +309,43 @@ server <- function(input, output) {
    
    
    # API-Daten laden (asynchron, ohne die anderen Render-Blöcke zu blockieren)
-   data_extended <- reactiveVal(NULL)  # Erstmal NULL, später aktualisiert
+   # data_extended <- reactiveVal(NULL)  # Erstmal NULL, später aktualisiert
    
    api_status <- reactiveVal("Waiting for upload...")
    
 
-   observeEvent(data_json(), {
-     api_status("API is processing, please wait...")  # Status setzen
-     
-     tryCatch({
-       # refresh_token()
-       extended_dataframe <- add_api_data(data_table = data_json(), access = access_token, write_to_csv = FALSE)
-       data_extended(extended_dataframe)  # Speichert die erweiterte Tabelle
-       api_status("Successfully loaded API data")  # Erfolgsmeldung
-     }, error = function(e) {
-       message("Fehler bei API-Call: ", e$message)
-       api_status(paste("Error ocurred when loading API data"))  # Fehlertext anzeigen
-     })
+   # observeEvent(data_json(), {
+   #   api_status("API is processing, please wait...")  # Status setzen
+   #   
+   #   tryCatch({
+   #     # refresh_token()
+   #     extended_dataframe <- add_api_data(data_table = data_json(), access = access_token, write_to_csv = FALSE)
+   #     data_extended(extended_dataframe)  # Speichert die erweiterte Tabelle
+   #     api_status("Successfully loaded API data")  # Erfolgsmeldung
+   #   }, error = function(e) {
+   #     message("Fehler bei API-Call: ", e$message)
+   #     api_status(paste("Error ocurred when loading API data"))  # Fehlertext anzeigen
+   #   })
+   # })
+   
+   # Manuelle API-Datenabruf-Logik
+   observeEvent(input$get_api_data, {
+     # Überprüfen, ob data_json() verfügbar ist
+     if (is.null(data_json()) || nrow(data_json()) == 0) {
+       api_status("Please upload a valid JSON file first.")  # Hinweis, wenn keine JSON-Daten vorhanden sind
+     } else {
+       api_status("API is processing, please wait...")  # Status setzen
+       
+       tryCatch({
+         # refresh_token()  # Hier ggf. Token-Refresh einfügen
+         extended_dataframe <- add_api_data(data_table = data_json(), access = access_token, write_to_csv = FALSE)
+         data_extended(extended_dataframe)  # Speichert die erweiterte Tabelle
+         api_status("Successfully loaded API data")  # Erfolgsmeldung
+       }, error = function(e) {
+         message("Fehler bei API-Call: ", e$message)
+         api_status(paste("Error occurred when loading API data:"))  # Fehlertext anzeigen
+       })
+     }
    })
    
    # # Versuche, `add_api_data` mit den JSON-Daten aufzurufen
@@ -303,7 +356,9 @@ server <- function(input, output) {
    #   }
    # })
    
-   
+   output$demo_comment <- renderText({
+     demo_comment()
+   })
    
    output$api_status <- renderText({
      api_status()
@@ -334,6 +389,12 @@ server <- function(input, output) {
     cat(txt, sep = "\n")
   })
   
+  # Tabelle: quick_stats() Ausgabe
+  output$quick_stats_table <- renderTable({
+    req(data_combined())
+    quick_stats(data_combined())
+  })
+  
   # Kommentarblock
   output$listening_time_comment <- renderPrint({
     req(data_combined())
@@ -344,11 +405,11 @@ server <- function(input, output) {
   output$listening_time_text <- renderPrint({
     req(data_combined())
     txt <- capture.output({
-      all_years <- unique(substr(data_combined()$ts, 1, 4))
+      all_years <- sort(unique(substr(data_combined()$ts, 1, 4)))
       for (year in all_years) {
         print(paste(year, ":", listening_time(extract_year(year, data_combined())), "min"))
       }
-      print(paste("All time:", listening_time(data()), "min"))
+      print(paste("All time:", listening_time(data_combined()), "min"))
     })
     cat(txt, sep = "\n")
   })

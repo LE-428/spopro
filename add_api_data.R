@@ -158,6 +158,8 @@ add_api_data <- function(data_table = all_data, access = access_token, write_to_
   almighty_table <- merge(almighty_table, artist_ids,
                           by = "master_metadata_album_artist_name")
  
+  colnames(almighty_table)[colnames(almighty_table) == "id"] <- "spotify_track_uri"
+  
   #print(almighty_table)
   if (write_to_csv == TRUE){
     write.csv(almighty_table, "your_extended_dataframe.csv", row.names = FALSE)

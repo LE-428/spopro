@@ -7,7 +7,7 @@ track_duration_plot <- function(data_table_ext, sort_by_streams = TRUE) {
     subset(
       data_table_ext,
       data_table_ext$ms_played == data_table_ext$duration_ms,
-      select = c(id, duration_ms)
+      select = c(spotify_track_uri, duration_ms)
     )
   unique_tracks <- unique(listened_tracks)
   # print(head(unique_tracks))

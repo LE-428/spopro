@@ -26,7 +26,7 @@ quick_stats <- function(data_table){
     Country = unlist(country_dict[names(head(countries))]),
     Streams = as.integer(head(countries))
   )
-  print(result)
+  return(invisible(result))
 }
 
 }
