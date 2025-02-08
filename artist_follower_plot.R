@@ -9,10 +9,10 @@ artist_follower_plot <- function(data_table_ext, sort_by_streams = TRUE){
   if (sort_by_streams == FALSE) {
     # Die Anzahl der Follower in Größenordnungen umwandeln mit Logarithmus
     followers_scaled <- as.integer(log10(unique_artists$artist_followers))
-    ylabel = "Anzahl Künstler im Datensatz"
+    ylabel = "Number of artists in the dataset"
   } else {
     followers_scaled <- as.integer(log10(follower_table$artist_followers))
-    ylabel = "Streams von Künstlern"
+    ylabel = "Streams by artists"
   }
   # print(head(followers_scaled))
   # Vorkommende Größenordnungen zählen
@@ -32,9 +32,9 @@ artist_follower_plot <- function(data_table_ext, sort_by_streams = TRUE){
   barplot_heights <- barplot(
     height = scaled_frequencies,                # Prozentsätze als Höhe der Balken
     #names.arg = interval_labels,      # Jahreszahlen als Namen der X-Achse
-    col = "skyblue",                          # Farbe der Balken
-    main = "Künstler",  # Titel des Plots
-    xlab = "Anzahl Follower, logarithmisch",                            # Beschriftung der X-Achse
+    col = "violet",                          # Farbe der Balken
+    main = "Artist",  # Titel des Plots
+    xlab = "Number of followers, logarithmic",                            # Beschriftung der X-Achse
     ylab = ylabel,         # Beschriftung der Y-Achse
     ylim = c(0, max(scaled_frequencies) + 10),     # Y-Achse anpassen
     #las = 2  # Dreht die Achsenbeschriftung, falls sie zu lang ist

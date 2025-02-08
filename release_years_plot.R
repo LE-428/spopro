@@ -30,10 +30,10 @@ release_years_plot <- function(data_table_ext){
     barplot(
       height = year_percentages,                # Prozentsätze als Höhe der Balken
       names.arg = names(year_percentages),      # Jahreszahlen als Namen der X-Achse
-      col = "skyblue",                          # Farbe der Balken
-      main = "Prozentuale Verteilung der Veröffentlichungsjahre",  # Titel des Plots
-      xlab = "Jahr",                            # Beschriftung der X-Achse
-      ylab = "Prozentualer Anteil (%)",         # Beschriftung der Y-Achse
+      col = "steelblue1",                          # Farbe der Balken
+      main = "Percentage distribution of release years",  # Titel des Plots
+      xlab = "Year",                            # Beschriftung der X-Achse
+      ylab = "Percentage (%)",         # Beschriftung der Y-Achse
       ylim = c(0, max(year_percentages) + 10)   # Y-Achse anpassen
     ) 
 }

@@ -42,7 +42,7 @@
       subset(
         data_table,
         ms_played > 30000 &
-          !is.na(spotify_track_uri),
+          !is.na(master_metadata_track_name),
         select = c(ts, ms_played, master_metadata_album_artist_name)
       ) # Streams mit weniger als 30s Dauer rausfiltern, für Spotify zählt ein stream ebenfalls nach 30s
     #print(head(data_table))

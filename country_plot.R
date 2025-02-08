@@ -16,7 +16,10 @@ country_plot <- function(data = all_data, top_x = 5){
   )
   print(result)
   # print(countries)
-  pie(countries[-c(1:1)])
+  pie(
+    countries[-c(1:1)], 
+    main = "Streams by country, skipping the first one"
+  )
   
 }
 

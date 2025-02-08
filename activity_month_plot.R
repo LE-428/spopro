@@ -27,13 +27,13 @@ activity_month_plot <- function(data_table){
   # print(head(activity_hours))
   new_table <- activity_months %>% group_by(month) %>% summarise(total_ms_played = round(sum(ms_played, na.rm = TRUE) / 1000 / 60))
   
-  # Vervollständige die Stunden von 0 bis 23, falls welche fehlen
-  complete_months <- data.frame(month = 1:12)  # Alle Stunden von 0 bis 23
+  # Die zwölf Monate eintragen
+  complete_months <- data.frame(month = 1:12)  # alle Monate
   new_table <- complete(complete_months, month) %>%
     left_join(new_table, by = "month") %>%
-    replace_na(list(total_ms_played = 0))  # Setze fehlende Stunden auf 0
+    replace_na(list(total_ms_played = 0))  # Setze fehlende Monate auf 0
   
-  # Verschiebe die Stunden so, dass sie bei 3 Uhr beginnen
+  print("Minutes played by month")
   print(new_table, n=12)
   # plot(new_table$hour, new_table$total_ms_played)
   #print(head(new_table))
@@ -45,10 +45,10 @@ activity_month_plot <- function(data_table){
   barplot(
     height = new_table$total_ms_played,                # Die Höhe der Balken
     names.arg = month_labels,               # Stunden als Namen der X-Achse
-    col = "skyblue",                             # Farbe der Balken
-    main = "Nach Monaten sortierte Wiedergabe",  # Titel des Plots
-    xlab = "Monat",                             # Beschriftung der X-Achse
-    ylab = "Minuten gespielt",                               # Beschriftung der Y-Achse
+    col = "orangered",                             # Farbe der Balken
+    main = "Minutes played by month",  # Titel des Plots
+    xlab = "Month",                             # Beschriftung der X-Achse
+    ylab = "Minutes played",                               # Beschriftung der Y-Achse
     ylim = c(0, max(new_table$total_ms_played, na.rm = TRUE) + 1000)  # Y-Achse anpassen
   ) 
 }

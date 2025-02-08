@@ -11,7 +11,7 @@ time_year_plot <- function(data_table){
   }
   
   # Barplot mit Jahren auf x-Achse und Minuten auf y-Achse
-  barplot(listening_times, names.arg = all_years, col = "steelblue",
+  barplot(listening_times, names.arg = all_years, col = "palegreen",
           main = "Listening Time per Year",
           xlab = "Year", ylab = "Minutes")
 }

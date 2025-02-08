@@ -4,7 +4,7 @@
 
 
 
-add_api_data <- function(data_table = all_data, access = access_token) {
+add_api_data <- function(data_table = all_data, access = access_token, write_to_csv = TRUE) {
   
   # Alle Zeilen mit weniger als 30s Laufzeit entfernen
   data_table <- subset(data_table, ms_played > 30000)
@@ -17,18 +17,23 @@ add_api_data <- function(data_table = all_data, access = access_token) {
                                                episode_name, 
                                                episode_show_name, 
                                                spotify_episode_uri, 
-                                               skipped))
+                                               offline_timestamp))
   data_table$id <- substring(data_table$id, first = 15)
-  #print(head(data_table))
+  # print(head(data_table))
   # Längen der Tabellen mit je einer Zeile pro Lied/Künstler
+  unique_tracks <- unique(data_table$id)
+  len_uniq_tracks <- length(unique_tracks)
   
-  len_uniq_tracks = length(data_table$id)
+  # len_uniq_tracks = length(data_table$id), alte Version
+  # Jeden Künstler mit einer Zeile verwenden
   uniq_artists <- aggregate(. ~ master_metadata_album_artist_name,
                             data = data_table, FUN = function(x) x[1])
   uniq_artists <- subset(uniq_artists, select = c(master_metadata_album_artist_name, id))
+  # print(head(uniq_artists, 25))
   len_uniq_artists = length(uniq_artists$id)
+  print(len_uniq_artists)
   # print(length(uniq_artists$id))
-  #print(head(uniq_artists))
+  print(head(uniq_artists))
   
   
   # Zu jedem Künstler wird mithilfe eines Tracks die Artist ID bestimmt und darüber dann die Genres
@@ -48,22 +53,26 @@ add_api_data <- function(data_table = all_data, access = access_token) {
         uniq_artists$artist_id[j + n - 1] <- tracks$artists[[n]]$id[1]
       }
     }
-    #print(uniq_artistss)
+    #print(head(uniq_artists))
+    # API-Anfrage über die gerade erhaltenen Artist IDs
     artists <- get_artists(id = uniq_artists$artist_id[j:min(j + 49, len_uniq_artists)],
                            authorization = access_token)
     
     for (m in seq_along(ids_chunk)) {
       index <- j + m - 1
+      # Artist Popularity
       uniq_artists$artist_popularity[index] <- artists$popularity[m]
+      # Artist Followers
       uniq_artists$artist_followers[index] <- artists$followers.total[m]
       
+      # Artist Genres
       if (length(artists$genres[[m]]) == 0) {
         uniq_artists$artist_genres[index] <- ""
       } else {
         uniq_artists$artist_genres[index] <- paste(artists$genres[[m]], collapse = ",")
       }
     }
-    #print(uniq_artists)
+    #print(head(uniq_artists))
   
   }
   artist_ids <- subset(uniq_artists, select = c(artist_id,
@@ -78,10 +87,14 @@ add_api_data <- function(data_table = all_data, access = access_token) {
   
   # Alle Tracks werden durchlaufen und die API aufgerufen und die zusätzlichen Informationen abgerufen
     
+  
+  print(len_uniq_tracks)
+  
   for(i in seq(1, len_uniq_tracks, 100)){
    
     index_end <- min(i + 99, len_uniq_tracks)
-    ids <- data_table$id[i:index_end]
+    # ids <- data_table$id[i:index_end]
+    ids <- unique_tracks[i:index_end]  # Jetzt nur noch über einzigartige IDs
     len_ids <- length(ids)
     # print(length(ids))
     
@@ -95,7 +108,7 @@ add_api_data <- function(data_table = all_data, access = access_token) {
                                  release_date = track_table$album.release_date,
                                  duration_ms = track_table$duration_ms)
     } else {
-      print(ids[1:50])
+      # print(ids[1:50])
       track_table1 <- get_tracks(id = ids[1:50], authorization = access_token)
       track_table2 <- get_tracks(id = ids[51:len_ids], authorization = access_token)
       #metadata <- c(track_table1$popularity, track_table2$popularity)
@@ -127,7 +140,7 @@ add_api_data <- function(data_table = all_data, access = access_token) {
     #  output_table <- rbind(output_table, api_table)
     #}
     
-  }
+  } # Ende der for-Schleife
   
   # Die Tabellen werden wieder zusammengefügt anhand von zusammengehörigen Track ids und Künstlernamen
     
@@ -146,5 +159,8 @@ add_api_data <- function(data_table = all_data, access = access_token) {
                           by = "master_metadata_album_artist_name")
  
   #print(almighty_table)
+  if (write_to_csv == TRUE){
+    write.csv(almighty_table, "your_extended_dataframe.csv", row.names = FALSE)
+  }
   return(almighty_table)
 }

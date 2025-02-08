@@ -1,6 +1,6 @@
 # PDF erstellen, welches die Top 100 Lieder aller im Datensatz enthaltenden Jahre
 # auflistet und Übereinstimmungen miteinander verbindet
-
+{
 
 {
 library(jsonlite)
@@ -15,7 +15,7 @@ library(hrbrthemes)
 library(GGally)
 }
 
-top_tracks_over_time <- function(data = all_data){
+top_tracks_over_time_plot <- function(data = all_data, save_plot = FALSE){
   
   data$ts <- ymd_hms(data$ts)
   
@@ -37,7 +37,10 @@ top_tracks_over_time <- function(data = all_data){
   for (i in unique_years) { # Jahresgrenzen evtl noch automatisch anpassend machen
   # for (i in min(unique(data$year)):max(unique(data$year))){ # Jahresgrenzen evtl noch automatisch anpassend machen
     a <- result[[as.character(i)]]
-    b <- top_tracks_mo(a,100)
+    b <- top_tracks(a, 100, filter_streams = FALSE)
+    # print(i) # Welches Jahr verursacht das Problem?
+    # print(b) # Wie sieht das Ergebnis aus?
+    # print(nrow(b)) # Ist es NULL oder 0?
     b$id <- seq(1, nrow(b))
     # print(b, n=100)
     top[[as.character(i)]] <- b
@@ -52,22 +55,26 @@ top_tracks_over_time <- function(data = all_data){
     geom_line(aes(x = factor(Jahr), y = id)) +
     geom_point(shape = 16, size = 1) + 
     geom_text(aes(label = Track), vjust = -0.5, hjust = 0.5, size = 1) +  
-    labs(title = paste0("Top 100 von ", min(unique(data$year))," bis ", max(unique(data$year))), x = "Variable", y = "Value") +
+    labs(title = paste0("Top 100 from ", min(unique(data$year))," to ", max(unique(data$year))), x = "Variable", y = "Value") +
     theme_ipsum() +
     theme(legend.position="none")
     
   print(p)
   
   # Exportiere den ggplot als hochauflösendes PDF
-  ggsave(
-    filename = "top_tracks_plot.pdf",  # Dateiname
-    plot = p,                         # Dein ggplot2-Objekt
-    device = pdf,               # Verwende cairo für bessere Text-Darstellung
-    width = 12,                       # Breite in Zoll
-    height = 8,                       # Höhe in Zoll
-    dpi = 300                         # Auflösung (dots per inch)
-  )
+  if (save_plot == TRUE) {
+    ggsave(
+      filename = "top_tracks_plot.pdf",  # Dateiname
+      plot = p,                         # Dein ggplot2-Objekt
+      device = pdf,               # Verwende cairo für bessere Text-Darstellung
+      width = 12,                       # Breite in Zoll
+      height = 8,                       # Höhe in Zoll
+      dpi = 300                         # Auflösung (dots per inch)
+    )
+  }
   
   
   # return(combined_df)
+}
+
 }

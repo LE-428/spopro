@@ -53,7 +53,14 @@ time_artist_activity <- function(data_table){
     count(master_metadata_album_artist_name) %>%  # Zählen, wie oft jeder Künstler vorkommt
     arrange(hour, desc(n)) %>%  # Sortieren nach Stunde und Häufigkeit (absteigend)
     slice(1)
-  print(most_frequent_artist, n=24)
+  
+  result <- most_frequent_artist %>%
+    rename(artist = master_metadata_album_artist_name, plays = n) %>%
+    ungroup()
+  
+  # Ausgabe des Ergebnisses
+  print(result, n = 24) # print() gibt aus und returned gleichzeitig
+  # return(result)
 }
 
 

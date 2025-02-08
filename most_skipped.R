@@ -3,7 +3,7 @@
   
 {
   
-top_tracks <- function(data_table = all_data, top_x = 5){
+top_tracks_temp <- function(data_table = all_data, top_x = 5){
   
   häufigkeiten_track <- table(data_table$master_metadata_track_name)
   sortierte_häufigkeiten <- sort(häufigkeiten_track, decreasing = TRUE)
@@ -17,7 +17,7 @@ top_tracks <- function(data_table = all_data, top_x = 5){
 
 most_skipped <- function(data_table, top_x = 10){
   relevant_table <- subset(data_table, reason_end == "fwdbtn", select=c(master_metadata_track_name, master_metadata_album_artist_name, master_metadata_album_album_name))
-  aggregated_skips <- top_tracks(relevant_table, top_x)
+  aggregated_skips <- top_tracks_temp(relevant_table, top_x)
   out <- data.frame(Track = names(aggregated_skips), skipped = as.integer(aggregated_skips))
   # print(head(relevant_table))
   return(out)

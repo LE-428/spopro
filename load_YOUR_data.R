@@ -1,12 +1,18 @@
 {
+
+{
   library(dplyr)
   library(jsonlite)
   # library(tidyverse)
 }
 
 # Verzeichnis mit JSON-Dateien angeben
-{
-  json_files_directory <- "path/to/your/json/files"
+load_YOUR_data <- function(path){
+  if (is.character(path) == TRUE) {
+    json_files_directory <- path
+  } else {
+    json_files_directory <- "path/to/your/json/files"
+  }
   
   # Liste für geladene Daten erstellen
   loaded_data_list <- list()
@@ -35,3 +41,4 @@
   # y2023 <- extract_year("2023", your_dataframe)
 }
 
+}

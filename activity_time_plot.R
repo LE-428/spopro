@@ -29,24 +29,26 @@ activity_time_plot <- function(data_table){
   new_table <- activity_hours %>% group_by(hour) %>% summarise(total_ms_played = round(sum(ms_played, na.rm = TRUE) / 1000 / 60))
   
   # Vervollständige die Stunden von 0 bis 23, falls welche fehlen
-  complete_hours <- data.frame(hour = 0:23)  # Alle Stunden von 0 bis 23
+  complete_hours <- data.frame(hour = 0:24)  # Alle Stunden von 0 bis 23
   new_table <- complete(complete_hours, hour) %>%
     left_join(new_table, by = "hour") %>%
     replace_na(list(total_ms_played = 0))  # Setze fehlende Stunden auf 0
   
   # Verschiebe die Stunden so, dass sie bei 3 Uhr beginnen
-  shifted_data <- new_table[c(4:23, 1:3), ]
+  shifted_data <- new_table[c(4:24, 1:3), ]
+  print("Minutes listened per time of day")
   print(shifted_data, n=24)
+  
   # plot(shifted_data$hour, shifted_data$total_ms_played)
   #print(head(shifted_data))
   # print((shifted_data$total_ms_played))
   barplot(
     height = shifted_data$total_ms_played,                # Die Höhe der Balken
     names.arg = shifted_data$hour,               # Stunden als Namen der X-Achse
-    col = "skyblue",                             # Farbe der Balken
-    main = "Nach Stunden sortierte Wiedergabe",  # Titel des Plots
-    xlab = "Stunde ab ...",                             # Beschriftung der X-Achse
-    ylab = "Minuten gespielt",                               # Beschriftung der Y-Achse
+    col = "gold",                             # Farbe der Balken
+    main = "Minutes listened per time of day",  # Titel des Plots
+    xlab = "Hour from ...",                             # Beschriftung der X-Achse
+    ylab = "Minutes played",                               # Beschriftung der Y-Achse
     ylim = c(0, max(shifted_data$total_ms_played, na.rm = TRUE) + 1000)  # Y-Achse anpassen
   ) 
 }
