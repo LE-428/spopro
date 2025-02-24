@@ -427,7 +427,7 @@ server <- function(input, output) {
   
   output$platform_usage_plot <- renderPlot({
     req(data_combined())
-    platform_usage(data_combined())
+    platform_usage_plot(data_combined())
   })
   
   # Kommentarblock
@@ -482,13 +482,13 @@ server <- function(input, output) {
   # Top Album Name
   output$top_album_name_comment <- renderPrint({
     req(data_combined())
-    top_album <- top_albums(data_combined(), top_x = 1)$Album_Name
+    top_album <- top_albums(data_combined(), top_x = 1)$Album
     cat(top_album)
   })
   
   output$top_album_tracks_table <- renderTable({
     req(data_combined())
-    top_album <- top_albums(data_combined(), top_x = 1)$Album_Name
+    top_album <- top_albums(data_combined(), top_x = 1)$Album
     top_album_tracks(data_combined(), album_string = top_album, exact_search_bool = TRUE)
   })
   

@@ -1,6 +1,6 @@
 # Show the platforms which wered used to listen to music
 
-platform_usage <- function(data_table) {
+platform_usage_plot <- function(data_table) {
   # Definiere die interessierenden Plattformen
   platforms <- c("osx", "windows", "ios", "android")
   

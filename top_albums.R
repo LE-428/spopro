@@ -2,33 +2,32 @@
 
 
 # > top_albums(all_kathi, 5)
-# Album_Name Play_Count
-# 1 Keine Nacht für Niemand       1520
-# 2                   Mit K       1453
-# 3                   Drama       1316
-# 4              In Schwarz       1253
-# 5                    KIOX       1089
+# Album    Artist Plays
+# 1 Keine Nacht für Niemand Kraftklub  1520
+# 2                   Mit K Kraftklub  1453
+# 3                   Drama    Shindy  1307
+# 4              In Schwarz Kraftklub  1253
+# 5                    KIOX    KUMMER  1089
 
 
-top_albums <- function(data_table, top_x = 10) {
+top_albums <- function(df, top_x = 10){
   # Sort out the tracks with <30 seconds
-  data_table <- subset(data_table, ms_played > 30000)
-   
-  # Count the frequency of each album
-  album_frequencies <- table(data_table$master_metadata_album_album_name)
+  df <- subset(df, ms_played > 30000, select=c(master_metadata_album_album_name, master_metadata_album_artist_name))
   
+  df <- df %>% 
+    group_by(master_metadata_album_album_name) %>% 
+    
+  # Count the frequency of each album
+    count(master_metadata_album_album_name, master_metadata_album_artist_name) %>% 
+    
   # Sort the frequencies in descending order
-  sorted_frequencies <- sort(album_frequencies, decreasing = TRUE)
+    arrange(desc(n)) %>% 
+    rename(
+      Artist = master_metadata_album_artist_name, Album = master_metadata_album_album_name, Plays = n
+    ) %>%
+  # Convert the result into a data frame
+    as.data.frame()
   
   # Select the top x albums
-  top_albums <- head(sorted_frequencies, top_x)
-  
-  # Convert the result into a data frame
-  result_table <- data.frame(
-    Album_Name = names(top_albums),
-    Play_Count = as.integer(top_albums)
-  )
-  
-  return(result_table)
+  return(head(df, n = top_x))
 }
-
