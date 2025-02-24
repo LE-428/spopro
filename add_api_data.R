@@ -11,7 +11,8 @@ add_api_data <- function(data_table = all_data, access = access_token, write_to_
   # Die Tabelle wird aufbereitet, Spalten umbenannt, Spalten entfernt und die ids der Tracks abgeschnitten
   
   names(data_table)[names(data_table) == "spotify_track_uri"] <- "id"
-  data_table <- subset(data_table, !is.na(id), select = -c(platform, 
+  data_table <- subset(data_table, !is.na(id), select = -c(
+                                               #platform, 
                                                #username, 
                                                #user_agent_decrypted, 
                                                episode_name, 

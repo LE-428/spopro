@@ -34,6 +34,11 @@ ui <- fluidPage(
       
       textOutput("api_status"),  # Zeigt den API-Status an
       
+      tags$div(
+        tags$h4("Ideas? Suggestions?", style = "font-weight: bold; margin-top: 14px;"),
+        tags$a("GitHub", href = "https://github.com/LE-428/spopro", style = "color: gray; font-size: 14px;")
+      )
+      
       
       # # Neue Textfelder für die Spotify Client ID und Client Secret
       # textInput("client_id", "Spotify Client ID", placeholder = "Enter your Client ID here"),
@@ -56,6 +61,13 @@ ui <- fluidPage(
       # Textausgabe für quick_stats
       verbatimTextOutput("quick_stats_text"),
       tableOutput("quick_stats_table"),
+      
+      br(),
+      br(),
+      
+      # Plot: Plattformen
+      verbatimTextOutput("platform_usage_comment"),
+      plotOutput("platform_usage_plot"),
       
       br(),
       br(),
@@ -142,6 +154,12 @@ ui <- fluidPage(
       br(),
       br(),
       
+      verbatimTextOutput("longest_tracks_comment"),
+      tableOutput("longest_tracks_table"),
+      
+      br(),
+      br(),
+      
       verbatimTextOutput("time_year_plot_comment"),
       plotOutput("time_year_plot"),
       
@@ -161,7 +179,7 @@ ui <- fluidPage(
       br(),
       
       verbatimTextOutput("top_tracks_over_time_plot_comment"),
-      plotOutput("top_tracks_over_time_plot"),
+      plotOutput("top_tracks_over_time_plot", width = "800px", height = "600px"),
       
       br(),
       br(),
@@ -234,7 +252,13 @@ ui <- fluidPage(
       br(),
       
       verbatimTextOutput("evaluate_music_taste_comment"),
-      verbatimTextOutput("evaluate_music_taste_text")
+      verbatimTextOutput("evaluate_music_taste_text"),
+      
+      br(),
+      br(),
+      
+      verbatimTextOutput("artist_cluster_plot_comment"),
+      plotOutput("artist_cluster_plot_plot", width = "800px", height = "600px"),
     )
   )
 )
@@ -395,6 +419,17 @@ server <- function(input, output) {
     quick_stats(data_combined())
   })
   
+  # Plot: platform_usage()
+  output$platform_usage_comment <- renderPrint({
+    req(data_combined())
+    cat("Spotify usage on different platforms")
+  })
+  
+  output$platform_usage_plot <- renderPlot({
+    req(data_combined())
+    platform_usage(data_combined())
+  })
+  
   # Kommentarblock
   output$listening_time_comment <- renderPrint({
     req(data_combined())
@@ -518,13 +553,13 @@ server <- function(input, output) {
   # Textblock: Ausgabe recent year
   output$recent_year_comment <- renderPrint({
     req(data_combined())
-    recent_year <- last(sort(unique(substr(data_combined()$ts, 1, 4))))
+    recent_year <- sort(unique(substr(data_combined()$ts, 1, 4)))[length(sort(unique(substr(data_combined()$ts, 1, 4)))) - 1]
     cat(recent_year)
   })
   
   output$artist_month_table <- renderTable({
     req(data_combined())
-    recent_year <- last(sort(unique(substr(data_combined()$ts, 1, 4))))
+    recent_year <- sort(unique(substr(data_combined()$ts, 1, 4)))[length(sort(unique(substr(data_combined()$ts, 1, 4)))) - 1]
     recent_year_dataframe <- extract_year(recent_year, data_combined())
     artist_month(recent_year_dataframe)
   })
@@ -553,7 +588,7 @@ server <- function(input, output) {
   
   output$top_tracks_table_recent <- renderTable({
     req(data_combined())
-    recent_year <- last(sort(unique(substr(data_combined()$ts, 1, 4))))
+    recent_year <- sort(unique(substr(data_combined()$ts, 1, 4)))[length(sort(unique(substr(data_combined()$ts, 1, 4)))) - 1]
     recent_year_dataframe <- extract_year(recent_year, data_combined())
     top_tracks(recent_year_dataframe, top_x = 10)
   })
@@ -567,6 +602,17 @@ server <- function(input, output) {
   output$top_tracks_incognito_table <- renderTable({
     req(data_combined())
     top_tracks(incognito(data_combined()), top_x = 10)
+  })
+  
+  # Tabelle: längste Lieder
+  output$longest_tracks_comment <- renderPrint({
+    req(data_combined())
+    cat("Show the longest tracks that were listened")
+  })
+  
+  output$longest_tracks_table <- renderTable({
+    req(data_combined())
+    longest_tracks(data_combined())
   })
   
   # Textblock: Kommentar zu time_year_plot und Ausgabe des Plots
@@ -642,7 +688,7 @@ server <- function(input, output) {
   
   output$activity_month_plot_recent <- renderPlot({
     req(data_combined())
-    recent_year <- last(sort(unique(substr(data_combined()$ts, 1, 4))))
+    recent_year <- sort(unique(substr(data_combined()$ts, 1, 4)))[length(sort(unique(substr(data_combined()$ts, 1, 4)))) - 1]
     recent_year_dataframe <- extract_year(recent_year, data_combined())
     activity_month_plot(recent_year_dataframe)
   })
@@ -725,7 +771,7 @@ server <- function(input, output) {
   
   output$month_genre_activity_table <- renderTable({
     req(data_extended())
-    recent_year <- last(sort(unique(substr(data_extended()$ts, 1, 4))))
+    recent_year <- sort(unique(substr(data_combined()$ts, 1, 4)))[length(sort(unique(substr(data_combined()$ts, 1, 4)))) - 1]
     recent_year_dataframe <- extract_year(recent_year, data_extended())
     month_genre_activity(recent_year_dataframe)
   })
@@ -752,6 +798,16 @@ server <- function(input, output) {
     evaluate_music_taste(data_extended())
   })
   
+  # Kommentar und Textblock: Artist Cluster Plot
+  output$artist_cluster_plot_comment <- renderPrint({
+    req(data_extended())
+    cat("Plot Artist with follower count and average song length")
+  })
+  
+  output$artist_cluster_plot_plot <- renderPlot({
+    req(data_extended())
+    artist_cluster_plot(data_extended())
+  })
   
   
 }

@@ -26,5 +26,5 @@ top_days_time <- function(data_table, top_x = 5){
   # output <- table[(which(grepl(year, table$ts))),]
   # return(list(days_table_uni_sort$ts[1:top_n],days_table_uni_sort$sum[1:top_n] / 60000, print(sum(days_table_unique$sum)), 
   #            print(sum(data_table$ms_played))))
-  return(data.frame(date = days_table_uni_sort$ts[1:top_x], minutes = round(days_table_uni_sort$sum[1:top_x] / 60000, digits = 0)))
+  return(data.frame(date = days_table_uni_sort$ts[1:top_x], minutes = as.integer(round(days_table_uni_sort$sum[1:top_x] / 60000, digits = 0))))
 }

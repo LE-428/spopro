@@ -77,6 +77,7 @@
     # Ergebnis zusammenführen
     result <- bind_rows(top_artists_by_month, .id = "group")
     colnames(result) <- c("month", "artist_name", "minutes")
+    result$minutes <- as.integer(result$minutes)
     print(result)
   }
   

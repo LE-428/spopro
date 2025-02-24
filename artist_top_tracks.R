@@ -29,6 +29,6 @@ artist_top_tracks <- function(data_table, top_x, artist_string, feature_search_b
   # }
   # top_tracks <- top_tracks[order(-top_tracks$plays), ]
   # return(head(top_tracks, top_x))
-  return(data.frame(track = attr(hottest_tracks_table, "names"), plays = as.numeric(hottest_tracks_table)))
+  return(data.frame(track = attr(hottest_tracks_table, "names"), plays = as.integer(hottest_tracks_table)))
 
 }
