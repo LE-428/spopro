@@ -4,14 +4,15 @@
 
 
 
-add_api_data <- function(data_table = all_data, access = access_token, write_to_csv = TRUE) {
+add_api_data <- function(data_frame = all_data, access = access_token, write_to_csv = TRUE, playtime_threshold = 30000) {
   
   # Alle Zeilen mit weniger als 30s Laufzeit entfernen
-  data_table <- subset(data_table, ms_played > 30000)
+  data_frame <- subset(data_frame, ms_played > playtime_threshold)
+  data_frame <- drop_podcasts(data_frame)
   # Die Tabelle wird aufbereitet, Spalten umbenannt, Spalten entfernt und die ids der Tracks abgeschnitten
   
-  names(data_table)[names(data_table) == "spotify_track_uri"] <- "id"
-  data_table <- subset(data_table, !is.na(id), select = -c(
+  names(data_frame)[names(data_frame) == "spotify_track_uri"] <- "id"
+  data_frame <- subset(data_frame, !is.na(id), select = -c(
                                                #platform, 
                                                #username, 
                                                #user_agent_decrypted, 
@@ -19,16 +20,16 @@ add_api_data <- function(data_table = all_data, access = access_token, write_to_
                                                episode_show_name, 
                                                spotify_episode_uri, 
                                                offline_timestamp))
-  data_table$id <- substring(data_table$id, first = 15)
-  # print(head(data_table))
+  data_frame$id <- substring(data_frame$id, first = 15)
+  # print(head(data_frame))
   # Längen der Tabellen mit je einer Zeile pro Lied/Künstler
-  unique_tracks <- unique(data_table$id)
+  unique_tracks <- unique(data_frame$id)
   len_uniq_tracks <- length(unique_tracks)
   
-  # len_uniq_tracks = length(data_table$id), alte Version
+  # len_uniq_tracks = length(data_frame$id), alte Version
   # Jeden Künstler mit einer Zeile verwenden
   uniq_artists <- aggregate(. ~ master_metadata_album_artist_name,
-                            data = data_table, FUN = function(x) x[1])
+                            data = data_frame, FUN = function(x) x[1])
   uniq_artists <- subset(uniq_artists, select = c(master_metadata_album_artist_name, id))
   # print(head(uniq_artists, 25))
   len_uniq_artists = length(uniq_artists$id)
@@ -83,7 +84,7 @@ add_api_data <- function(data_table = all_data, access = access_token, write_to_
   output_table <- data.frame()
   
   # Neue Tabelle für Popularities erstellen
-  metadata_table <- data.frame(id = character(), popularity = numeric(), release_date = character(),
+  metadata_frame <- data.frame(id = character(), popularity = numeric(), release_date = character(),
                                duration_ms = numeric(), stringsAsFactors = FALSE)
   
   # Alle Tracks werden durchlaufen und die API aufgerufen und die zusätzlichen Informationen abgerufen
@@ -94,7 +95,7 @@ add_api_data <- function(data_table = all_data, access = access_token, write_to_
   for(i in seq(1, len_uniq_tracks, 100)){
    
     index_end <- min(i + 99, len_uniq_tracks)
-    # ids <- data_table$id[i:index_end]
+    # ids <- data_frame$id[i:index_end]
     ids <- unique_tracks[i:index_end]  # Jetzt nur noch über einzigartige IDs
     len_ids <- length(ids)
     # print(length(ids))
@@ -126,7 +127,7 @@ add_api_data <- function(data_table = all_data, access = access_token, write_to_
     #print(metadata)
     
     # metadata zur Tabelle hinzufügen
-    metadata_table <- rbind(metadata_table, metadata)
+    metadata_frame <- rbind(metadata_frame, metadata)
     
     
     # Die restlichen Informationen werden abgerufen
@@ -145,17 +146,17 @@ add_api_data <- function(data_table = all_data, access = access_token, write_to_
   
   # Die Tabellen werden wieder zusammengefügt anhand von zusammengehörigen Track ids und Künstlernamen
     
-  data_table <- unique(data_table)
+  data_frame <- unique(data_frame)
   #output_table <- unique(output_table)
-  metadata_table <- unique(metadata_table)
+  metadata_frame <- unique(metadata_frame)
   artist_ids <- unique(artist_ids)
   
-  #print(head(data_table))
+  #print(head(data_frame))
   #print(head(popularities_table))
   #print(head(artist_ids))
   
-  almighty_table <- merge(data_table, metadata_table, by = "id")
-  #almighty_table <- merge(data_table, output_table, by = "id")
+  almighty_table <- merge(data_frame, metadata_frame, by = "id")
+  #almighty_table <- merge(data_frame, output_table, by = "id")
   almighty_table <- merge(almighty_table, artist_ids,
                           by = "master_metadata_album_artist_name")
  

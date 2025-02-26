@@ -10,6 +10,7 @@
 # 4               rage rap  310
 # 5            melodic rap  291
 
+
 top_genres <- function(data_table_ext, top_x = 10){
   #data_table_ext$artist_genres <- as.character(data_table_ext$artist_genres)
   data_table_ext <- subset(data_table_ext, artist_genres != "" & ms_played > 30000)
@@ -25,5 +26,9 @@ top_genres <- function(data_table_ext, top_x = 10){
   genre_counts <- sort(genre_counts, decreasing = TRUE)
   
   result <- as.data.frame(genre_counts)
-  return(head(result, n = top_x))
+  colnames(result) <- c("Genre", "Count")
+  
+  result <- head(result, n = top_x)  # Top X Genres auswählen
+  
+  return(result)
 }

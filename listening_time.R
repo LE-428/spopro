@@ -1,4 +1,4 @@
-# data_table Tabelle mit Rohdaten, Ausgabe in Minuten
+# data_frame Tabelle mit Rohdaten, Ausgabe in Minuten
 
 #Beispiel
 
@@ -6,7 +6,7 @@
 # [1] 35133
 
 
-listening_time <- function(data_table){
-  output <- round(sum(data_table$ms_played) / 60000, digits = 0)
+listening_time <- function(data_frame){
+  output <- round(sum(data_frame$ms_played) / 60000, digits = 0)
   return(output)
 }

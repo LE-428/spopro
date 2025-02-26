@@ -19,7 +19,7 @@
 
 
 top_artist_by_genre <- function(data_table_ext, top_x = 10){
-  top_x_genres <- top_genres(data_table_ext = data_table_ext, top_x = top_x)$all_genres 
+  top_x_genres <- top_genres(data_table_ext = data_table_ext, top_x = top_x)$Genre 
   data_table_ext <- subset(data_table_ext, artist_genres != "" & ms_played > 30000, select = c(master_metadata_album_artist_name, artist_genres))
   # data_table_ext$artist_genres <- strsplit(data_table_ext$artist_genres, ",")
   

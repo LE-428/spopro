@@ -11,14 +11,17 @@
 # 5    Righteous    28
 
 
-artist_top_tracks <- function(data_table, top_x, artist_string, feature_search_bool = TRUE){
-  data_table <- subset(data_table, ms_played > 30000) # Streams mit weniger als 30s Dauer rausfiltern, für Spotify zählt ein stream ebenfalls nach 30s
+artist_top_tracks <- function(data_frame, top_x, artist_string, feature_search_bool = TRUE){
+  data_frame <- subset(data_frame, ms_played > 30000) # Streams mit weniger als 30s Dauer rausfiltern, für Spotify zählt ein stream ebenfalls nach 30s
+  # Escape possible special characters in the string
+  artist_string <- gsub("([()])", "\\\\\\1", artist_string)
+  artist_string <- gsub("\\$", "\\\\\\$", artist_string)
   if (feature_search_bool == TRUE) {
-    aux_table <- data_table[union((which(grepl(artist_string, data_table$master_metadata_album_artist_name, ignore.case=TRUE))), (which(grepl(artist_string, data_table$master_metadata_track_name, ignore.case=TRUE)))),]
+    aux_table <- data_frame[union((which(grepl(artist_string, data_frame$master_metadata_album_artist_name, ignore.case=TRUE))), (which(grepl(artist_string, data_frame$master_metadata_track_name, ignore.case=TRUE)))),]
   } else if (feature_search_bool == FALSE) {
-    aux_table <- data_table[(which(grepl(artist_string, data_table$master_metadata_album_artist_name, ignore.case=TRUE))),]
+    aux_table <- data_frame[(which(grepl(artist_string, data_frame$master_metadata_album_artist_name, ignore.case=TRUE))),]
   }
-  # aux_table <- data_table[union((which(grepl(artist_string, data_table$master_metadata_album_artist_name, ignore.case=TRUE))), (which(grepl(artist_string, data_table$master_metadata_track_name, ignore.case=TRUE)))),]
+  # aux_table <- data_frame[union((which(grepl(artist_string, data_frame$master_metadata_album_artist_name, ignore.case=TRUE))), (which(grepl(artist_string, data_frame$master_metadata_track_name, ignore.case=TRUE)))),]
   aux_table_slim <- data.frame(artist = aux_table$master_metadata_album_artist_name, track = aux_table$master_metadata_track_name)
   sorted_table <- sort(table(aux_table_slim$track), decreasing = TRUE)
   hottest_tracks_table <- head(sorted_table, top_x)

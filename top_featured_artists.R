@@ -2,10 +2,10 @@
 {
 library(stringr)
 
-top_featured_artists <- function(data_table, top_x = 10) {
+top_featured_artists <- function(data_frame, top_x = 10) {
   feature_table <-
-    subset(data_table,
-           data_table$ms_played > 30000,
+    subset(data_frame,
+           data_frame$ms_played > 30000,
            select = c(master_metadata_track_name))
  matches <- feature_table$master_metadata_track_name |>
    # nach Text innerhalb von [] bzw. () suchen

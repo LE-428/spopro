@@ -47,7 +47,7 @@ artist_cluster_plot <- function(df_ext){
   
   # Schritt 2: Erstelle die Farbkodierung für die Genres
   # Angenommene top_genres, du solltest sie anpassen
-  top_genres <- top_20_genres$all_genres
+  top_genres <- top_20_genres$Genre
   palette <- brewer.pal(12, "Paired")  # Wir nutzen eine Palette mit bis zu 12 Farben
   
   # Erstelle eine benutzerdefinierte Farbpalette für die verbleibenden Genres

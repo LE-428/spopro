@@ -3,7 +3,7 @@
   #'
   #' Diese Funktion gibt einen Plot aus.
   #'
-  #' @param data_table Eine Tabelle
+  #' @param data_frame Eine Tabelle
   #' @return None
   
   
@@ -16,14 +16,14 @@
 }
   
   
-activity_month_plot <- function(data_table){
-  # print(head(data_table))
-  data_table <- subset(data_table, ms_played > 30000, select=c(ts, ms_played)) # Streams mit weniger als 30s Dauer rausfiltern, für Spotify zählt ein stream ebenfalls nach 30s
-  #print(head(data_table))
+activity_month_plot <- function(data_frame){
+  # print(head(data_frame))
+  data_frame <- subset(data_frame, ms_played > 30000, select=c(ts, ms_played)) # Streams mit weniger als 30s Dauer rausfiltern, für Spotify zählt ein stream ebenfalls nach 30s
+  #print(head(data_frame))
   # Beispiel: Teile des Strings extrahieren, die dem Muster entsprechen
-  matches <- as.integer(regmatches(data_table$ts, regexpr("(?<=\\d{4}-)\\d{2}", data_table$ts, perl = TRUE)))
+  matches <- as.integer(regmatches(data_frame$ts, regexpr("(?<=\\d{4}-)\\d{2}", data_frame$ts, perl = TRUE)))
   # print(head(matches))
-  activity_months <- data.frame(month = matches, ms_played=data_table$ms_played)
+  activity_months <- data.frame(month = matches, ms_played=data_frame$ms_played)
   # print(head(activity_hours))
   new_table <- activity_months %>% group_by(month) %>% summarise(total_ms_played = round(sum(ms_played, na.rm = TRUE) / 1000 / 60))
   

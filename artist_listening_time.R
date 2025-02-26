@@ -1,4 +1,4 @@
-# data_table Tabelle mit Rohdaten, artist_string als "string". Groß- und Kleinschreibung egal, Ausgabe in Minuten
+# data_frame Tabelle mit Rohdaten, artist_string als "string". Groß- und Kleinschreibung egal, Ausgabe in Minuten
 
 # Beispiel
 
@@ -6,12 +6,12 @@
 # [1] 368
 
 
-artist_listening_time <- function(data_table, artist_string) {
+artist_listening_time <- function(data_frame, artist_string) {
   aux_table <-
-    data_table[(which(
+    data_frame[(which(
       grepl(
         artist_string,
-        data_table$master_metadata_album_artist_name,
+        data_frame$master_metadata_album_artist_name,
         ignore.case = TRUE
       )
     )), ]

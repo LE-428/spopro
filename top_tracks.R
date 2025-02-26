@@ -1,4 +1,4 @@
-# data_table Tabelle mit Rohdaten, top_x int Wert, ausgegeben werden die Top x Werte
+# data_frame Tabelle mit Rohdaten, top_x int Wert, ausgegeben werden die Top x Werte
 
 # > top_tracks(all_mo)
 # `summarise()` has grouped output by 'master_metadata_track_name'. You can override using the `.groups` argument.
@@ -15,13 +15,13 @@
 {
   library(dplyr)
   
-  top_tracks <- function(data_table, top_x = 5, filter_streams = TRUE) {
+  top_tracks <- function(data_frame, top_x = 5, filter_streams = TRUE) {
     if (filter_streams == TRUE) {
-    data_table <-
-      subset(data_table, ms_played > 30000) # Streams mit weniger als 30s Dauer rausfiltern, für Spotify zählt ein stream ebenfalls nach 30s
+    data_frame <-
+      subset(data_frame, ms_played > 30000) # Streams mit weniger als 30s Dauer rausfiltern, für Spotify zählt ein stream ebenfalls nach 30s
     }
     
-    #häufigkeiten_track <- table(data_table$master_metadata_track_name)
+    #häufigkeiten_track <- table(data_frame$master_metadata_track_name)
     #sortierte_häufigkeiten <- sort(häufigkeiten_track, decreasing = TRUE)
     #x_häufigsten_tracks <- head(sortierte_häufigkeiten, top_x)
     
@@ -29,7 +29,7 @@
     
     
     grouped_df <-
-      group_by(data_table,
+      group_by(data_frame,
                master_metadata_track_name,
                master_metadata_album_artist_name)
     

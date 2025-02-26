@@ -36,14 +36,14 @@
 {
 
 
-time_artist_activity <- function(data_table){
-  data_table <- subset(data_table, ms_played > 30000 & conn_country == "DE", select=c(ts, master_metadata_album_artist_name, master_metadata_track_name)) # Streams mit weniger als 30s Dauer rausfiltern, für Spotify zählt ein stream ebenfalls nach 30s
-  #print(head(data_table))
+time_artist_activity <- function(data_frame){
+  data_frame <- subset(data_frame, ms_played > 30000 & conn_country == "DE", select=c(ts, master_metadata_album_artist_name, master_metadata_track_name)) # Streams mit weniger als 30s Dauer rausfiltern, für Spotify zählt ein stream ebenfalls nach 30s
+  #print(head(data_frame))
   
   # Stunde extrahieren
-  matches <- as.integer(regmatches(data_table$ts, regexpr("(?<=T)\\d{2}", data_table$ts, perl = TRUE)))
+  matches <- as.integer(regmatches(data_frame$ts, regexpr("(?<=T)\\d{2}", data_frame$ts, perl = TRUE)))
   # print(head(matches))
-  activity_hours <- data.frame(hour = matches, master_metadata_album_artist_name=data_table$master_metadata_album_artist_name, track_name=data_table$master_metadata_track_name)
+  activity_hours <- data.frame(hour = matches, master_metadata_album_artist_name=data_frame$master_metadata_album_artist_name, track_name=data_frame$master_metadata_track_name)
   temp <- subset(activity_hours, hour %in% c(1, 2, 3, 4, 5, 6) & master_metadata_album_artist_name=="Frank Ocean")
   print(temp)
   
@@ -55,7 +55,7 @@ time_artist_activity <- function(data_table){
     slice(1)
   
   result <- most_frequent_artist %>%
-    rename(artist = master_metadata_album_artist_name, plays = n) %>%
+    rename(Artist = master_metadata_album_artist_name, Plays = n) %>%
     ungroup()
   
   # Ausgabe des Ergebnisses

@@ -47,7 +47,10 @@ month_genre_activity <- function(data_table_ext){
     group_by(month) %>%
     # Hier rufst du die Funktion `top_genres` auf, um das häufigste Genre pro Stunde zu bestimmen
     summarise(top_genre = names(sort(table(unlist(strsplit(artist_genres, ","))), decreasing = TRUE)[1]),
-              top_genre_freq = max(table(unlist(strsplit(artist_genres, ",")))))
+              top_genre_freq = max(table(unlist(strsplit(artist_genres, ","))))) %>% 
+    rename(
+      Month = month, Top_Genre = top_genre, Frequency = top_genre_freq
+    )
   
   # Gebe das Ergebnis aus
   print(top_genre_per_month, n = 12)

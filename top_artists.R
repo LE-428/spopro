@@ -15,12 +15,12 @@ top_artists <- function(df, top_x = 5) {
     filter(!is.na(master_metadata_album_artist_name)) %>%             # NA-Werte entfernen
     group_by(master_metadata_album_artist_name) %>%                   # Gruppierung nach Künstlernamen
     summarise(
-      total_minutes_played = as.integer(round(sum(ms_played) / 1000 / 60))        # Gesamtdauer in Minuten berechnen
+      Playtime = as.integer(round(sum(ms_played) / 1000 / 60))        # Gesamtdauer in Minuten berechnen
     ) %>%
-    arrange(desc(total_minutes_played)) %>%                           # Absteigend nach Gesamtdauer sortieren
+    arrange(desc(Playtime)) %>%                           # Absteigend nach Gesamtdauer sortieren
     slice_head(n = top_x) %>%
     rename(
-      Artist_Name = master_metadata_album_artist_name                # Spalten umbenennen
+      Artist = master_metadata_album_artist_name                # Spalten umbenennen
     ) %>%
                                                                       # Top-x Einträge auswählen
     as.data.frame()                                                   # Ergebnis als DataFrame ausgeben

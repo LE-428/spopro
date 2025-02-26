@@ -14,9 +14,9 @@ artist_popularity_plot <- function(data_table_ext, sort_by_streams = TRUE){
       height = artist_popularity_absolute,                # Prozentsätze als Höhe der Balken
       names.arg = names(artist_popularity_absolute),      # Jahreszahlen als Namen der X-Achse
       col = "slateblue",                          # Farbe der Balken
-      main = "Verteilung der Künstler-Beliebtheit",  # Titel des Plots
-      xlab = "Beliebtheit (Popularity)",                            # Beschriftung der X-Achse
-      ylab = "Anzahl der Streams",         # Beschriftung der Y-Achse
+      main = "Distribution of artist popularity",  # Titel des Plots
+      xlab = "Popularity",                            # Beschriftung der X-Achse
+      ylab = "Number of streams",         # Beschriftung der Y-Achse
       ylim = c(0, max(artist_popularity_absolute) + 10)   # Y-Achse anpassen
     )
     
@@ -31,9 +31,9 @@ artist_popularity_plot <- function(data_table_ext, sort_by_streams = TRUE){
       height = distribution,                # Prozentsätze als Höhe der Balken
       names.arg = names(distribution),      # Jahreszahlen als Namen der X-Achse
       col = "slateblue",                          # Farbe der Balken
-      main = "Verteilung der Künstler-Beliebtheit",  # Titel des Plots
-      xlab = "Beliebtheit (Popularity)",                            # Beschriftung der X-Achse
-      ylab = "Anzahl der Künstler",         # Beschriftung der Y-Achse
+      main = "Distribution of artist popularity",  # Titel des Plots
+      xlab = "Popularity",                            # Beschriftung der X-Achse
+      ylab = "Number of artists",         # Beschriftung der Y-Achse
       ylim = c(0, max(distribution) + 10)   # Y-Achse anpassen
     ) 
   }
