@@ -404,7 +404,7 @@ server <- function(input, output, session) {
        
        tryCatch({
          # refresh_token()  # Hier ggf. Token-Refresh einfügen
-         extended_dataframe <- add_api_data(data_frame = data_json(), access = access_token, write_to_csv = FALSE)
+         extended_dataframe <- add_api_data(data_frame = data_json(), access = access_token, write_to_csv = FALSE, playtime_threshold = 5000)
          data_extended(extended_dataframe)  # Speichert die erweiterte Tabelle
          api_status("Successfully loaded API data")  # Erfolgsmeldung
        }, error = function(e) {
@@ -627,7 +627,7 @@ server <- function(input, output, session) {
   output$artist_albums_table <- renderTable({
     req(data_combined(), input$selected_artist_b)
     selected_artist_escaped <- as.character(input$selected_artist_b)
-    artist_albums(data_combined(), artist_string = selected_artist_escaped, top_x = 5)
+    artist_albums(data_combined(), artist_string = selected_artist_escaped, exact = TRUE, top_x = 5)
   })
   
   # Textblock: Kommentar zu top_artist_name und Ausgabe der Tabelle
@@ -646,7 +646,7 @@ server <- function(input, output, session) {
   output$top_artist_tracks_table <- renderTable({
     req(data_combined(), input$selected_artist)
     selected_artist_escaped <- as.character(input$selected_artist)
-    artist_top_tracks(data_combined(), top_x = 10, artist_string = selected_artist_escaped)
+    artist_top_tracks(data_combined(), top_x = 10, artist_string = selected_artist_escaped, exact = TRUE)
   })
   
   output$artist_time_plot <- renderPlot({
@@ -714,7 +714,7 @@ server <- function(input, output, session) {
   output$track_time_plot <- renderPlot({
     req(data_combined(), input$selected_track)
     selected_track_escaped <- as.character(input$selected_track)
-    track_time_plot(data_combined(), track_string = selected_track_escaped)
+    track_time_plot(data_combined(), track_string = selected_track_escaped, exact = TRUE)
   })
   
   output$top_tracks_table_recent <- renderTable({
@@ -958,7 +958,7 @@ server <- function(input, output, session) {
     req(data_extended())
     cat("Plot showcasing the different phases of track listening: early skipping,
         stable behavior during the middle, early track ending (outro etc.),
-        more early skips with shuffled tracks, less late skips with shuffled tracks, 
+        more early and less late skips with shuffled tracks, 
         user not actively controlling playback?")
   })
   
