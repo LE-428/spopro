@@ -1,7 +1,7 @@
 # Plot the streaming activity of a song over time
 
 {
-
+library(tidyverse)
 library(ggplot2)
 library(dplyr)
 library(tidyr)
@@ -34,6 +34,11 @@ track_time_plot <- function(data_frame, track_string, artist_string, exact = FAL
   
   # Convert the Timestamp column to Date format
   aux_table$Timestamp <- as.Date(paste0(aux_table$Timestamp, "-01"), format="%Y-%m-%d")
+  
+  # Set default value
+  if (nrow(aux_table) == 0 || all(is.na(aux_table$Timestamp))) {
+    aux_table <- data.frame(Timestamp = as.Date("2023-01-01"), Monthly_Plays = 0)
+  }
   
   # Create a sequence of all months within the range of the data
   all_months <- seq(min(aux_table$Timestamp, na.rm = TRUE), 

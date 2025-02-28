@@ -19,7 +19,7 @@ evaluate_music_taste <- function(data_table_ext){
   average_artist_popularity <- round(sum(data_table_ext$artist_popularity) / nrow(data_table_ext))
   average_track_popularity <- round(sum(data_table_ext$popularity) / nrow(data_table_ext))
   
-  music_taste_val <- average_artist_followers * ((3 * average_track_popularity + 1 * average_track_popularity) / 4 / 100)
+  music_taste_val <- as.integer(average_artist_followers * ((3 * average_track_popularity + 1 * average_track_popularity) / 4 / 100))
   
   result <- paste(
     "Average artist followers:", average_artist_followers, "\n",

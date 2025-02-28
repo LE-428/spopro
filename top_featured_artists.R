@@ -22,7 +22,7 @@ top_featured_artists <- function(data_frame, top_x = 10) {
  non_empty_matches <- split_matches[split_matches != ""]
  
  # Gib den Vektor mit den nicht-leeren Matches aus
- # print(non_empty_matches)
+ # print(unique(non_empty_matches))
  top_features <- sort(table(non_empty_matches), decreasing = TRUE)
  # print((top_features))
  top_x_features <- head(top_features, n = top_x)

@@ -11,7 +11,7 @@ library(tidyverse)
 library(tidyr)
 library(viridis)
 library(MASS)
-library(hrbrthemes)
+# library(hrbrthemes)
 library(GGally)
 }
 
@@ -55,10 +55,13 @@ top_tracks_over_time_plot <- function(data = all_data, save_plot = FALSE){
     geom_line(aes(x = factor(Jahr), y = id)) +
     geom_point(shape = 16, size = 1) + 
     geom_text(aes(label = Track), vjust = -0.5, hjust = 0.5, size = 1) +  
-    labs(title = paste0("Top 100 from ", min(unique(data$year))," to ", max(unique(data$year))), x = "Variable", y = "Value") +
-    theme_ipsum() +
-    theme(legend.position="none")
-    
+    labs(title = paste0("Top 100 from ", min(unique(data$year))," to ", max(unique(data$year))), x = "Year", y = "Rank") +
+    # theme_ipsum() +
+    theme(legend.position="none",
+      plot.title = element_text(hjust = 0.5),  # Center title
+      plot.background = element_rect(fill = "white", color = "white"),  # Set background to white
+  
+    )
   print(p)
   
   # Exportiere den ggplot als hochauflösendes PDF

@@ -1,11 +1,12 @@
 library(shiny)
 library(bslib)
+library(R.utils)
 
 options(shiny.maxRequestSize = 100*1024^2)  # Erhöht das Limit auf 50 MB
 
 
 # Lade deine Funktionen
-source("Run/run_all.R")
+source("Run/run_all_nonrecursive.R")
 
 
 ui <- fluidPage(
@@ -19,14 +20,22 @@ ui <- fluidPage(
   ),
   sidebarLayout(
     sidebarPanel(
+      
+      tags$div(
+        tags$h4("Upload your JSON Files", style = "font-weight: bold; margin-top: 14px;"),
+      ),
+      
       fileInput("file", 
-                tags$span("Upload JSON Files (request your Extended Streaming History from ", 
+                tags$span("(request your Extended Streaming History from ", 
                           tags$a("Spotify", href = "https://www.spotify.com/account/privacy/", target = "_blank"), 
                           ")"), 
                 accept = ".json", 
                 multiple = TRUE)
       ,
       
+      tags$div(
+        tags$h4("Load additional stats", style = "font-weight: bold; margin-top: 14px;"),
+      ),
       
       # Button zum manuellen Abrufen der API-Daten
       actionButton("get_api_data", "Fetch API Data"),
@@ -35,14 +44,21 @@ ui <- fluidPage(
       textOutput("api_status"),  # Zeigt den API-Status an
       
       tags$div(
+        tags$h4("Use your API credentials", tags$a("Documentation", 
+          href = "https://developer.spotify.com/documentation/web-api", style = "color: gray; font-size: 14px;"),
+          style = "font-weight: bold; margin-top: 14px;"),
+      ),
+      
+      
+      textInput("client_id", "Spotify Client ID", placeholder = "Enter your Client ID here"),
+      textInput("client_secret", "Spotify Client Secret", placeholder = "Enter your Client Secret here"),
+      actionButton("save_creds", "Save Credentials"),
+      
+      tags$div(
         tags$h4("Ideas? Suggestions?", style = "font-weight: bold; margin-top: 14px;"),
         tags$a("GitHub", href = "https://github.com/LE-428/spopro", style = "color: gray; font-size: 14px;")
       )
       
-      
-      # # Neue Textfelder für die Spotify Client ID und Client Secret
-      # textInput("client_id", "Spotify Client ID", placeholder = "Enter your Client ID here"),
-      # textInput("client_secret", "Spotify Client Secret", placeholder = "Enter your Client Secret here")
       
       # fileInput("file_csv", 
       #           tags$span("Upload CSV File (additional API-Data, view on ", 
@@ -64,6 +80,17 @@ ui <- fluidPage(
       br(),
       br(),
       
+      verbatimTextOutput("country_plot_comment"),
+      plotOutput("country_plot"),
+      
+      br(),
+      
+      tableOutput("country_table"),
+      
+      br(),
+      br(),
+      
+      
       # Plot: Plattformen
       verbatimTextOutput("platform_usage_comment"),
       plotOutput("platform_usage_plot"),
@@ -78,6 +105,18 @@ ui <- fluidPage(
       br(),
       br(),
       
+      verbatimTextOutput("time_year_plot_comment"),
+      plotOutput("time_year_plot"),
+      
+      br(),
+      br(),
+      
+      verbatimTextOutput("activity_time_plot_comment"),
+      plotOutput("activity_time_plot"),
+      
+      br(),
+      br(),
+      
       # Tabelle: Top Days Time
       verbatimTextOutput("top_days_comment"),
       tableOutput("top_days_table"),
@@ -87,6 +126,13 @@ ui <- fluidPage(
       
       # Tabelle: Top Albums
       verbatimTextOutput("top_albums_comment"),
+      selectInput("selected_year_e", "Choose a year",
+                  choices = NULL,  # Will be filled later
+                  selected = NULL), # Default
+      tableOutput("top_albums_table_recent"),
+      
+      br(),
+      
       tableOutput("top_albums_table"),
       
       br(),
@@ -94,9 +140,11 @@ ui <- fluidPage(
       
       verbatimTextOutput("top_album_comment"),
       # Album Dropdown
-      selectInput("selected_album", "Choose an Album:",
-                  choices = NULL,  # Will be filled later
-                  selected = NULL), # Default
+      # selectInput("selected_album", "Choose an Album:",
+      #             choices = NULL,  # Will be filled later
+      #             selected = NULL), # Default
+      # Album search bar and dropdown
+      selectizeInput("search_album", "Choose or search", choices = NULL),
       # verbatimTextOutput("top_album_name_comment"),
       tableOutput("top_album_tracks_table"),
       
@@ -104,12 +152,22 @@ ui <- fluidPage(
       br(),
       
       verbatimTextOutput("track_per_year_comment"),
+      selectInput("selected_year_c", "Choose a year",
+                  choices = NULL,  # Will be filled later
+                  selected = NULL), # Default
       tableOutput("track_per_year_table"),
       
       br(),
       br(),
       
       verbatimTextOutput("top_artists_comment"),
+      selectInput("selected_year_d", "Choose a year",
+                  choices = NULL,  # Will be filled later
+                  selected = NULL), # Default
+      tableOutput("top_artists_table_recent"),
+      
+      br(),
+      
       tableOutput("top_artists_table"),
       
       br(),
@@ -125,9 +183,11 @@ ui <- fluidPage(
       
       verbatimTextOutput("top_artist_comment"),
       # Dropdown menu to choose from favorite artists
-      selectInput("selected_artist", "Choose an Artist",
-                  choices = NULL,  # Will be filled later
-                  selected = NULL), # Default
+      # selectInput("selected_artist", "Choose an Artist...",
+      #             choices = NULL,  # Will be filled later
+      #             selected = NULL), # Default
+      # Search bar
+      selectizeInput("search_artist", "Choose or search", choices = NULL),
       tableOutput("top_artist_tracks_table"),
       
       br(),
@@ -164,9 +224,10 @@ ui <- fluidPage(
       
       br(),
       
-      selectInput("selected_track", "Choose a track",
-                  choices = NULL,  # Will be filled later
-                  selected = NULL), # Default
+      # selectInput("selected_track", "Choose a track",
+      #             choices = NULL,  # Will be filled later
+      #             selected = NULL), # Default
+      selectizeInput("search_track", "Choose or search", choices = NULL),
       plotOutput("track_time_plot"),
       
       br(),
@@ -191,30 +252,10 @@ ui <- fluidPage(
       br(),
       br(),
       
-      verbatimTextOutput("time_year_plot_comment"),
-      plotOutput("time_year_plot"),
-      
-      br(),
-      br(),
-      
-      verbatimTextOutput("activity_time_plot_comment"),
-      plotOutput("activity_time_plot"),
-      
-      br(),
-      br(),
-      
-      verbatimTextOutput("country_plot_comment"),
-      plotOutput("country_plot"),
-      
-      br(),
-      
-      tableOutput("country_table"),
-      
-      br(),
-      br(),
-      
       verbatimTextOutput("top_tracks_over_time_plot_comment"),
       plotOutput("top_tracks_over_time_plot", width = "800px", height = "600px"),
+      br(),
+      downloadButton("download_pdf", "Download Plot PDF"),
       
       br(),
       br(),
@@ -234,7 +275,20 @@ ui <- fluidPage(
       verbatimTextOutput("recent_year_text"),
       plotOutput("activity_month_plot_recent"),
       
+      
       ### EXTENDED
+      br(),
+      
+      verbatimTextOutput("extended_comment"),
+      
+      br(),
+      br(),
+      
+      verbatimTextOutput("artist_graph_comment"),
+      plotlyOutput("artist_graph_plot", height = "600px"),
+      br(),
+      downloadButton("download_pdf_b", "Download Plot PDF"),
+      
       br(),
       br(),
       
@@ -318,6 +372,7 @@ server <- function(input, output, session) {
   data_extended <- reactiveVal(default_data)
   
   demo_comment <- reactiveVal("SHOWING DEMO DATASET")
+  extended_comment <- reactiveVal("EXTENDED DATA (API) NEEDED FROM HERE ON")
   
   
   data_json <- reactive({
@@ -356,6 +411,7 @@ server <- function(input, output, session) {
     data_combined(data_json())  # Überschreibt den Wert mit den neuen JSON-Daten
     data_extended(NULL)  # Setzt data_extended zurück (leert es), bevor neue Daten geladen werden
     demo_comment("")
+    extended_comment("")
   })
   
   # # Versuche, `add_api_data` mit den JSON-Daten aufzurufen
@@ -372,6 +428,17 @@ server <- function(input, output, session) {
   #     # return(data_csv())  # Gib die CSV-Daten zurück
   #   })
   # })
+  
+  
+  observeEvent(input$save_creds, {
+    if (nzchar(input$client_id) && nzchar(input$client_secret)) {
+      set_api_creds(input$client_id, input$client_secret)  # API-Creds setzen
+      source("spotify_api_access.r")
+      showNotification("Spotify API credentials updated!", type = "message")
+    } else {
+      showNotification("Please enter both Client ID and Client Secret.", type = "error")
+    }
+  })
    
    
    # API-Daten laden (asynchron, ohne die anderen Render-Blöcke zu blockieren)
@@ -395,24 +462,44 @@ server <- function(input, output, session) {
    # })
    
    # Manuelle API-Datenabruf-Logik
+   # observeEvent(input$get_api_data, {
+   #   # Überprüfen, ob data_json() verfügbar ist
+   #   if (is.null(data_json()) || nrow(data_json()) == 0) {
+   #     api_status("Please upload a valid JSON file first.")  # Hinweis, wenn keine JSON-Daten vorhanden sind
+   #   } else {
+   #     api_status("API is processing, please wait...")  # Status setzen
+   #     
+   #     tryCatch({
+   #       # refresh_token()  # Hier ggf. Token-Refresh einfügen
+   #       extended_dataframe <- add_api_data(data_frame = data_json(), access = access_token, write_to_csv = FALSE, playtime_threshold = 5000)
+   #       data_extended(extended_dataframe)  # Speichert die erweiterte Tabelle
+   #       api_status("Successfully loaded API data")  # Erfolgsmeldung
+   #     }, error = function(e) {
+   #       message("Fehler bei API-Call: ", e$message)
+   #       api_status(paste("Error occurred when loading API data:"))  # Fehlertext anzeigen
+   #     })
+   #   }
+   # })
+   
    observeEvent(input$get_api_data, {
-     # Überprüfen, ob data_json() verfügbar ist
      if (is.null(data_json()) || nrow(data_json()) == 0) {
-       api_status("Please upload a valid JSON file first.")  # Hinweis, wenn keine JSON-Daten vorhanden sind
+       api_status("Please upload a valid JSON file first.")  
      } else {
-       api_status("API is processing, please wait...")  # Status setzen
+       api_status("API is processing, please wait...")  
        
        tryCatch({
-         # refresh_token()  # Hier ggf. Token-Refresh einfügen
-         extended_dataframe <- add_api_data(data_frame = data_json(), access = access_token, write_to_csv = FALSE, playtime_threshold = 5000)
-         data_extended(extended_dataframe)  # Speichert die erweiterte Tabelle
-         api_status("Successfully loaded API data")  # Erfolgsmeldung
+         extended_dataframe <- withTimeout({
+           add_api_data(data_frame = data_json(), access = access_token, write_to_csv = FALSE, playtime_threshold = 5000)
+         }, timeout = 300, onTimeout = "error")  # Abbruch nach 10 Sekunden
+         
+         data_extended(extended_dataframe)  
+         api_status("Successfully loaded API data")  
        }, error = function(e) {
-         message("Fehler bei API-Call: ", e$message)
-         api_status(paste("Error occurred when loading API data:"))  # Fehlertext anzeigen
+         api_status(paste("Error occurred:", e$message, "Please use your own credentials or try again later."))
        })
      }
    })
+   
    
    # # Versuche, `add_api_data` mit den JSON-Daten aufzurufen
    # data_extended <- reactive({
@@ -445,11 +532,11 @@ server <- function(input, output, session) {
    })
    
    # Refresh dropdown
-   observe({
-     updateSelectInput(session, "selected_artist",
-                       choices = top_artists_list(),
-                       selected = top_artists_list()[1])  # Erster Artist als Standard
-   })
+   # observe({
+   #   updateSelectInput(session, "selected_artist",
+   #                     choices = top_artists_list(),
+   #                     selected = top_artists_list()[1])  # Erster Artist als Standard
+   # })
    
    # Refresh dropdown, second artist dropdown
    observe({
@@ -474,17 +561,50 @@ server <- function(input, output, session) {
    
    
    # List of available tracks
-   track_list <- reactive({
+   top_tracks_list <- reactive({
      req(data_combined())  
      top_tracks(data_combined(), top_x = 10)$Track
    })
    
-   # Refresh dropdown
-   observe({
-     updateSelectInput(session, "selected_track",
-                       choices = track_list(),
-                       selected = track_list()[1])  # Top track as default
+   # List of available artists
+   all_artists_list <- reactive({
+     req(data_combined())  
+     unique(c(top_artists_list(), "---------------", data_combined()$master_metadata_album_artist_name))
    })
+   
+   # List of available albums
+   all_albums_list <- reactive({
+     req(data_combined())  
+     unique(c(top_albums_list(), "---------------", data_combined()$master_metadata_album_album_name))
+   })
+   
+   # List of available albums
+   all_tracks_list <- reactive({
+     req(data_combined())  
+     unique(c(top_tracks_list(), "---------------", data_combined()$master_metadata_track_name))
+   })
+   
+   # Update the dropdown menu after dataframe has been read (artists)
+   observeEvent(data_combined(), {
+     updateSelectizeInput(session, "search_artist", choices = all_artists_list(), server = TRUE)
+   })
+   
+   # Update the dropdown menu after dataframe has been read (albums)
+   observeEvent(data_combined(), {
+     updateSelectizeInput(session, "search_album", choices = all_albums_list(), server = TRUE)
+   })
+   
+   # Update the dropdown menu after dataframe has been read (tracks)
+   observeEvent(data_combined(), {
+     updateSelectizeInput(session, "search_track", choices = all_tracks_list(), server = TRUE)
+   })
+   
+   # Refresh dropdown
+   # observe({
+   #   updateSelectInput(session, "selected_track",
+   #                     choices = top_tracks_list(),
+   #                     selected = top_tracks_list()[1])  # Top track as default
+   # })
    
    
    # Refresh second year dropdown menu
@@ -494,6 +614,26 @@ server <- function(input, output, session) {
                        selected = years_list()[pmax(1, length(years_list()) - 1)])  # Last completed year as default
    })
    
+   # Refresh third year dropdown menu
+   observe({
+     updateSelectInput(session, "selected_year_c",
+                       choices = years_list(),
+                       selected = years_list()[pmax(1, length(years_list()) - 1)])  # Last completed year as default
+   })
+   
+   # Refresh fourth year dropdown menu
+   observe({
+     updateSelectInput(session, "selected_year_d",
+                       choices = years_list(),
+                       selected = years_list()[pmax(1, length(years_list()) - 1)])  # Last completed year as default
+   })
+   
+   # Refresh fifth year dropdown menu
+   observe({
+     updateSelectInput(session, "selected_year_e",
+                       choices = years_list(),
+                       selected = years_list()[pmax(1, length(years_list()) - 1)])  # Last completed year as default
+   })
    
    
    output$demo_comment <- renderText({
@@ -516,7 +656,7 @@ server <- function(input, output, session) {
   # Kommentarblock
   output$quick_stats_comment <- renderPrint({
     req(data_combined())
-    cat("Get a quick overview of the dataset\n")
+    cat("Quick overview of the dataset\n")
   })
   
   # Textblock: quick_stats() Ausgabe
@@ -525,11 +665,21 @@ server <- function(input, output, session) {
     quick_stats(data_combined())
   })
   
-  # # Tabelle: quick_stats() Ausgabe
-  # output$quick_stats_table <- renderTable({
-  #   req(data_combined())
-  #   quick_stats(data_combined())
-  # })
+  # Textblock: Kommentar zu country_plot und Ausgabe des Plots
+  output$country_plot_comment <- renderPrint({
+    req(data_combined())
+    cat("Countries you have listened music in (connecting country)\n")
+  })
+  
+  output$country_plot <- renderPlot({
+    req(data_combined())
+    country_plot(data_combined())
+  })
+  
+  output$country_table <- renderTable({
+    req(data_combined())
+    country_list(data_combined())
+  })
   
   # Plot: platform_usage()
   output$platform_usage_comment <- renderPrint({
@@ -545,7 +695,7 @@ server <- function(input, output, session) {
   # Kommentarblock
   output$listening_time_comment <- renderPrint({
     req(data_combined())
-    cat("The total listening time of all your recorded streams in minutes")
+    cat("Total listening time of all recorded streams in minutes")
   })
   
   # Textblock: Listening Time pro Jahr
@@ -554,10 +704,32 @@ server <- function(input, output, session) {
     time_year(data_combined())
   })
   
+  # Textblock: Kommentar zu time_year_plot und Ausgabe des Plots
+  output$time_year_plot_comment <- renderPrint({
+    req(data_combined())
+    cat("Listening time over the years\n")
+  })
+  
+  output$time_year_plot <- renderPlot({
+    req(data_combined())
+    time_year_plot(data_combined())
+  })
+  
+  # Textblock: Kommentar zu activity_time_plot und Ausgabe des Plots
+  output$activity_time_plot_comment <- renderPrint({
+    req(data_combined())
+    cat("Minutes played per hour\n")
+  })
+  
+  output$activity_time_plot <- renderPlot({
+    req(data_combined())
+    activity_time_plot(data_combined())
+  })
+  
   #  Kommentarblock
   output$top_days_comment <- renderPrint({
     req(data_combined())
-    cat("The days that you have listened the most music")
+    cat("Days with most listening activity")
   })
   
   # Tabelle: Top Days Time
@@ -569,7 +741,15 @@ server <- function(input, output, session) {
   # Kommentarblock
   output$top_albums_comment <- renderPrint({
     req(data_combined())
-    cat("Show the most listened albums")
+    cat("Most listened albums (selected year and all time)")
+  })
+  
+  # Tabelle: Top Albums nach Jahr
+  output$top_albums_table_recent <- renderTable({
+    req(data_combined())
+    recent_year <- input$selected_year_e
+    recent_year_dataframe <- extract_year(recent_year, data_combined())
+    top_albums(recent_year_dataframe, top_x = 10)
   })
   
   # Tabelle: Top Albums
@@ -581,7 +761,7 @@ server <- function(input, output, session) {
   # Top Album
   output$top_album_comment <- renderPrint({
     req(data_combined())
-    cat("Show the track listen counter for your favorite album\n")
+    cat("Track listen counter for your favorite album\n")
   })
   
   # Top Album Name
@@ -591,25 +771,35 @@ server <- function(input, output, session) {
   # })
   
   output$top_album_tracks_table <- renderTable({
-    req(data_combined(), input$selected_album)
-    top_album_tracks(data_combined(), album_string = input$selected_album, exact_search_bool = TRUE)
+    req(data_combined())
+    selected_album_escaped <- as.character(input$search_album)
+    top_album_tracks(data_combined(), album_string = selected_album_escaped, exact_search_bool = TRUE)
   })
   
   # Textblock: Kommentar zu track_per_year und Ausgabe der Tabelle
   output$track_per_year_comment <- renderPrint({
     req(data_combined())
-    cat("Show the tracks that you have listened to the most often within one day\n")
+    cat("Tracks that you have listened to the most often within one day\n")
   })
   
   output$track_per_year_table <- renderTable({
-    req(data_combined())
-    track_per_year(data_combined(), top_x = 10)
+    req(data_combined(), input$selected_year_c)
+    recent_year <- input$selected_year_c
+    recent_year_dataframe <- extract_year(recent_year, data_combined())
+    track_per_year(recent_year_dataframe, top_x = 10)
   })
   
   # Textblock: Kommentar zu top_artists und Ausgabe der Tabelle
   output$top_artists_comment <- renderPrint({
     req(data_combined())
-    cat("Show your top artists by minutes played\n")
+    cat("Top artists by minutes played (selected year and all time)\n")
+  })
+  
+  output$top_artists_table_recent <- renderTable({
+    req(data_combined(), input$selected_year_d)
+    recent_year <- input$selected_year_d
+    recent_year_dataframe <- extract_year(recent_year, data_combined())
+    top_artists(recent_year_dataframe, top_x = 10)
   })
   
   output$top_artists_table <- renderTable({
@@ -620,7 +810,7 @@ server <- function(input, output, session) {
   # Textblock: Kommentar zu artist_albums und Ausgabe der Tabelle
   output$artist_albums_comment <- renderPrint({
     req(data_combined())
-    cat("Show the most popular albums of selected artist")
+    cat("Most popular albums of selected artist")
   })
   
   
@@ -633,7 +823,7 @@ server <- function(input, output, session) {
   # Textblock: Kommentar zu top_artist_name und Ausgabe der Tabelle
   output$top_artist_comment <- renderPrint({
     req(data_combined())
-    cat("Show the top tracks from most played artist\n")
+    cat("Top tracks of selected artist\n")
   })
   
   # Textblock: Kommentar zu top_artist_name 
@@ -644,21 +834,25 @@ server <- function(input, output, session) {
   # })
   
   output$top_artist_tracks_table <- renderTable({
-    req(data_combined(), input$selected_artist)
-    selected_artist_escaped <- as.character(input$selected_artist)
+    req(data_combined())
+    # selected_artist_escaped <- as.character(input$selected_artist)
+    selected_artist_escaped <- as.character(input$search_artist)
     artist_top_tracks(data_combined(), top_x = 10, artist_string = selected_artist_escaped, exact = TRUE)
   })
   
   output$artist_time_plot <- renderPlot({
-    req(data_combined(), input$selected_artist)
-    selected_artist_escaped <- as.character(input$selected_artist)
-    artist_time_plot(data_combined(), artist_string = selected_artist_escaped)
+    req(data_combined())
+    # selected_artist_escaped <- as.character(input$selected_artist)
+    selected_artist_escaped <- as.character(input$search_artist)
+    if (selected_artist_escaped != "---------------"){
+      artist_time_plot(data_combined(), artist_string = selected_artist_escaped)
+    }
   })
   
   # Textblock: Kommentar zu top_featured_artists und Ausgabe der Tabelle
   output$top_featured_artists_comment <- renderPrint({
     req(data_combined())
-    cat("Show the artists that appear most often in songs with features\n")
+    cat("Artists that appear most often in songs with features\n")
   })
   
   output$top_featured_artists_table <- renderTable({
@@ -669,7 +863,7 @@ server <- function(input, output, session) {
   # Textblock: Kommentar zu artist_month und Ausgabe der Tabelle
   output$artist_month_comment <- renderPrint({
     req(data_combined())
-    cat("Show the top artists of each month by minutes played (recent year)\n")
+    cat("Top artists of each month by minutes played (recent year)\n")
   })
   
   # Textblock: Ausgabe recent year
@@ -692,7 +886,7 @@ server <- function(input, output, session) {
   # Textblock: Kommentar zu time_artist_activity und Ausgabe der Tabelle
   output$time_artist_activity_comment <- renderPrint({
     req(data_combined())
-    cat("Show the top artists by time of day\n")
+    cat("Top artists by time of day\n")
   })
   
   output$time_artist_activity_table <- renderTable({
@@ -703,7 +897,7 @@ server <- function(input, output, session) {
   # Textblock: Kommentar zu top_tracks (All time und Recent Year) und Ausgabe der Tabellen
   output$top_tracks_comment <- renderPrint({
     req(data_combined())
-    cat("Show the tracks that have been played most often (all time and last completed year)\n")
+    cat("Tracks that have been played most often (all time and last completed year)\n")
   })
   
   output$top_tracks_table_all <- renderTable({
@@ -712,9 +906,11 @@ server <- function(input, output, session) {
   })
   
   output$track_time_plot <- renderPlot({
-    req(data_combined(), input$selected_track)
-    selected_track_escaped <- as.character(input$selected_track)
-    track_time_plot(data_combined(), track_string = selected_track_escaped, exact = TRUE)
+    req(data_combined())
+    selected_track_escaped <- as.character(input$search_track)
+    if (selected_track_escaped != "---------------"){
+      track_time_plot(data_combined(), track_string = selected_track_escaped, exact = TRUE)
+    }
   })
   
   output$top_tracks_table_recent <- renderTable({
@@ -729,7 +925,7 @@ server <- function(input, output, session) {
   # Textblock: Kommentar zu top_tracks (Incognito Mode) und Ausgabe der Tabelle
   output$top_tracks_incognito_comment <- renderPrint({
     req(data_combined())
-    cat("Show most popular tracks with incognito mode enabled\n")
+    cat("Most popular tracks with incognito mode enabled\n")
   })
   
   output$top_tracks_incognito_table <- renderTable({
@@ -737,54 +933,26 @@ server <- function(input, output, session) {
     top_tracks(incognito(data_combined()), top_x = 10)
   })
   
-  # Textblock: Kommentar zu time_year_plot und Ausgabe des Plots
-  output$time_year_plot_comment <- renderPrint({
-    req(data_combined())
-    cat("Plot the listening time over the years\n")
-  })
-  
-  output$time_year_plot <- renderPlot({
-    req(data_combined())
-    time_year_plot(data_combined())
-  })
-  
-  # Textblock: Kommentar zu activity_time_plot und Ausgabe des Plots
-  output$activity_time_plot_comment <- renderPrint({
-    req(data_combined())
-    cat("Plot with the minutes played per hour\n")
-  })
-  
-  output$activity_time_plot <- renderPlot({
-    req(data_combined())
-    activity_time_plot(data_combined())
-  })
-  
-  # Textblock: Kommentar zu country_plot und Ausgabe des Plots
-  output$country_plot_comment <- renderPrint({
-    req(data_combined())
-    cat("Plot with the countries you have listened music in (connecting country)\n")
-  })
-  
-  output$country_plot <- renderPlot({
-    req(data_combined())
-    country_plot(data_combined())
-  })
-  
-  output$country_table <- renderTable({
-    req(data_combined())
-    country_list(data_combined())
-  })
-  
   # Textblock: Kommentar zu top_tracks_over_time_plot und Ausgabe des Plots
   output$top_tracks_over_time_plot_comment <- renderPrint({
     req(data_combined())
-    cat("Creates plot/pdf with your Top 100 songs over the years\n")
+    cat("Plot/pdf with your Top 100 songs over the years\n")
   })
   
   output$top_tracks_over_time_plot <- renderPlot({
     req(data_combined())
-    top_tracks_over_time_plot(data_combined())
+    top_tracks_over_time_plot(data_combined(), save_plot = TRUE)
   })
+  
+  # Serverlogik zum Erstellen und Bereitstellen des PDFs
+  output$download_pdf <- downloadHandler(
+    filename = paste("top_tracks_plot.pdf"),
+    content = function(file) {
+      # Erstelle das PDF mit ggsave() im aktuellen Arbeitsverzeichnis
+      file.copy("top_tracks_plot.pdf", file)
+    }
+  )
+
   
   # Textblock: Kommentar zu most_skipped und Ausgabe der Tabelle
   output$most_skipped_comment <- renderPrint({
@@ -800,7 +968,7 @@ server <- function(input, output, session) {
   # Textblock: Kommentar zu activity_month_plot und Ausgabe der Plots
   output$activity_month_plot_comment <- renderPrint({
     req(data_combined())
-    cat("Plot with the minutes played per month (all time and recent year)\n")
+    cat("Minutes played per month (all time and recent year)\n")
   })
   
   output$activity_month_plot_all <- renderPlot({
@@ -824,10 +992,31 @@ server <- function(input, output, session) {
   
   ### EXTENDED DATAFRAME
   
+  # Textblock: Kommentar zu artist_graph_plot
+  output$artist_graph_comment <- renderPrint({
+    req(data_extended())
+    cat("Graph with features represented as edges between artists")
+  })
+  
+  output$artist_graph_plot <- renderPlotly({
+    req(data_extended())
+    p <- artist_graph_plot(data_extended(), extrapolate_genres = TRUE, save_plot = TRUE)
+    ggplotly(p, tooltip = "text")
+  })
+  
+  # Serverlogik zum Erstellen und Bereitstellen des PDFs
+  output$download_pdf_b <- downloadHandler(
+    filename = paste("artist_graph.pdf"),
+    content = function(file) {
+      # Erstelle das PDF mit ggsave() im aktuellen Arbeitsverzeichnis
+      file.copy("artist_graph.pdf", file)
+    }
+  )
+  
   # Textblock: Kommentar zu track_duration_plot und Ausgabe des Plots
   output$track_duration_plot_comment <- renderPrint({
     req(data_extended())
-    cat("Plot with the distribution of song lengths of all streams\n")
+    cat("Distribution of song lengths of all streams\n")
   })
   
   output$track_duration_plot <- renderPlot({
@@ -838,7 +1027,7 @@ server <- function(input, output, session) {
   # Tabelle: längste Lieder
   output$longest_tracks_comment <- renderPrint({
     req(data_extended())
-    cat("Show the longest tracks that were listened")
+    cat("Longest tracks that were listened")
   })
   
   output$longest_tracks_table <- renderTable({
@@ -849,7 +1038,7 @@ server <- function(input, output, session) {
   # Textblock: Kommentar zu release_years_plot und Ausgabe des Plots
   output$release_years_plot_comment <- renderPrint({
     req(data_extended())
-    cat("Plot with the release years of the songs streamed\n")
+    cat("Release years of the songs streamed\n")
   })
   
   output$release_years_plot <- renderPlot({
@@ -860,7 +1049,7 @@ server <- function(input, output, session) {
   # Kommentar und Plot: Distribution of streams and follower number
   output$artist_follower_plot_comment <- renderPrint({
     req(data_extended())
-    cat("Plot with the distribution of the streams and the follower number of the artist\n")
+    cat("Distribution of the streams and the follower number of the artist\n")
   })
   
   output$artist_follower_plot <- renderPlot({
@@ -871,7 +1060,7 @@ server <- function(input, output, session) {
   # Kommentar und Plot: Popularity of artist over amount of streams
   output$artist_popularity_plot_comment <- renderPrint({
     req(data_extended())
-    cat("Plot with popularity of artist over amount of streams\n")
+    cat("Popularity of artist over amount of streams\n")
   })
   
   output$artist_popularity_plot <- renderPlot({
@@ -882,7 +1071,7 @@ server <- function(input, output, session) {
   # Kommentar und Tabelle: Top Genres
   output$top_genres_comment <- renderPrint({
     req(data_extended())
-    cat("Show the top genres\n")
+    cat("Top genres\n")
   })
   
   output$top_genres_plot <- renderPlot({
@@ -893,7 +1082,7 @@ server <- function(input, output, session) {
   # Kommentar und Tabelle: Top Artists je Genre
   output$artist_genre_comment <- renderPrint({
     req(data_extended())
-    cat("Show the favorite artist per genre\n")
+    cat("Favorite artist per genre\n")
   })
   
   #  Tabelle: Top Artist je Genre
@@ -905,7 +1094,7 @@ server <- function(input, output, session) {
   # Kommentar und Tabelle: Top Genre by Month
   output$month_genre_activity_comment <- renderPrint({
     req(data_extended())
-    cat("Show top genre by month (recent year)\n")
+    cat("Top genre by month (most recent completed year)\n")
   })
   
   output$month_genre_activity_table <- renderTable({
@@ -919,7 +1108,7 @@ server <- function(input, output, session) {
   # Kommentar und Tabelle: Top Genre by Daytime
   output$time_genre_activity_comment <- renderPrint({
     req(data_extended())
-    cat("Show top genre by daytime\n")
+    cat("Top genre by daytime\n")
   })
   
   output$time_genre_activity_table <- renderTable({
@@ -945,7 +1134,7 @@ server <- function(input, output, session) {
   # Kommentar und Textblock: Artist Cluster Plot
   output$artist_cluster_plot_comment <- renderPrint({
     req(data_extended())
-    cat("Scatterplot: Artist with follower count and average song length")
+    cat("Scatterplot with one point per artist: Artist with follower count and average song length")
   })
   
   output$artist_cluster_plot_plot <- renderPlot({
