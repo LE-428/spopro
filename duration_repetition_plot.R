@@ -1,3 +1,5 @@
+# Plot the song length against the streams and show the average repetition count across the dataset
+
 {
 library(ggplot2)
 library(dplyr)

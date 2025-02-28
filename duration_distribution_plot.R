@@ -43,13 +43,6 @@ duration_distribution_plot <- function(df_ext){
   # completion_rates <- calculate_completion_rates(df_ext)
   
   
-  # Average dataset for comparison with df_ext
-  # threshold_data <- data.frame(
-  #   Threshold = seq(0.05, 1, by = 0.05),
-  #   Completed_Ratio = c(0.708, 0.709, 0.716, 0.734, 0.753, 0.771, 0.788, 0.804, 
-  #                       0.819, 0.833, 0.847, 0.861, 0.875, 0.888, 0.902, 0.916, 
-  #                       0.932, 0.947, 0.965, 1)
-  # )
   completion_rates <- calculate_completion_rates(df_shuffle_true)
   threshold_data <- calculate_completion_rates(df_shuffle_false)
   

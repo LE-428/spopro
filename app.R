@@ -59,13 +59,6 @@ ui <- fluidPage(
         tags$a("GitHub", href = "https://github.com/LE-428/spopro", style = "color: gray; font-size: 14px;")
       )
       
-      
-      # fileInput("file_csv", 
-      #           tags$span("Upload CSV File (additional API-Data, view on ", 
-      #                     tags$a("GitHub", href = "https://github.com/LE-428/spopro", target = "_blank"), 
-      #                     ")"), 
-      #           accept = ".csv", 
-      #           multiple = FALSE)
     ),
     mainPanel(
       
@@ -139,10 +132,6 @@ ui <- fluidPage(
       br(),
       
       verbatimTextOutput("top_album_comment"),
-      # Album Dropdown
-      # selectInput("selected_album", "Choose an Album:",
-      #             choices = NULL,  # Will be filled later
-      #             selected = NULL), # Default
       # Album search bar and dropdown
       selectizeInput("search_album", "Choose or search", choices = NULL),
       # verbatimTextOutput("top_album_name_comment"),
@@ -182,10 +171,6 @@ ui <- fluidPage(
       br(),
       
       verbatimTextOutput("top_artist_comment"),
-      # Dropdown menu to choose from favorite artists
-      # selectInput("selected_artist", "Choose an Artist...",
-      #             choices = NULL,  # Will be filled later
-      #             selected = NULL), # Default
       # Search bar
       selectizeInput("search_artist", "Choose or search", choices = NULL),
       tableOutput("top_artist_tracks_table"),
@@ -207,7 +192,6 @@ ui <- fluidPage(
       selectInput("selected_year", "Choose a year",
                   choices = NULL,  # Will be filled later
                   selected = NULL), # Default
-      # verbatimTextOutput("recent_year_comment"),
       tableOutput("artist_month_table"),
       
       br(),
@@ -224,9 +208,6 @@ ui <- fluidPage(
       
       br(),
       
-      # selectInput("selected_track", "Choose a track",
-      #             choices = NULL,  # Will be filled later
-      #             selected = NULL), # Default
       selectizeInput("search_track", "Choose or search", choices = NULL),
       plotOutput("track_time_plot"),
       
@@ -388,22 +369,6 @@ server <- function(input, output, session) {
     return(your_dataframe)
   })
   
-  # data_csv <- reactive({
-  #   req(input$file_csv)
-  #   your_extended_dataframe <- read.csv(input$file_csv$datapath)
-  #   return(your_extended_dataframe)
-  # })
-  
-  # Neue kombinierte Datenquelle:
-  # data_combined <- reactive({
-  #   if (!is.null(input$file)) {
-  #     return(data_json())  # JSON wird priorisiert
-  #   # } else if (!is.null(input$file_csv)) {
-  #   #   return(data_csv())   # Falls keine JSON, nutze CSV
-  #   } else {
-  #     # return(default_data())  # Falls gar nichts hochgeladen wurde
-  #   }
-  # })
   
   # Beobachte Änderungen bei `data_json()` und aktualisiere `data_combined`
   observeEvent(data_json(), {
@@ -413,21 +378,6 @@ server <- function(input, output, session) {
     demo_comment("")
     extended_comment("")
   })
-  
-  # # Versuche, `add_api_data` mit den JSON-Daten aufzurufen
-  #  data_extended <- reactive({
-  #   req(data_json())  # Warten auf die JSON-Daten
-  #   tryCatch({
-  #     # Versuche, die `add_api_data`-Funktion mit den JSON-Daten auszuführen
-  #     # refresh_token()
-  #     extended_dataframe <- add_api_data(data_table = data_json(), access = access_token, write_to_csv = FALSE)
-  #     return(extended_dataframe)  # Erfolgreich, gebe die erweiterte Tabelle zurück
-  #   }, error = function(e) {
-  #     # Falls ein Fehler auftritt (z. B. keine JSON-Daten vorhanden sind), benutze die CSV-Daten
-  #     message("Fehler bei der Verwendung der JSON-Daten, wechsle zu CSV-Daten.")
-  #     # return(data_csv())  # Gib die CSV-Daten zurück
-  #   })
-  # })
   
   
   observeEvent(input$save_creds, {
@@ -447,39 +397,6 @@ server <- function(input, output, session) {
    api_status <- reactiveVal("Waiting for upload...")
    
 
-   # observeEvent(data_json(), {
-   #   api_status("API is processing, please wait...")  # Status setzen
-   #   
-   #   tryCatch({
-   #     # refresh_token()
-   #     extended_dataframe <- add_api_data(data_table = data_json(), access = access_token, write_to_csv = FALSE)
-   #     data_extended(extended_dataframe)  # Speichert die erweiterte Tabelle
-   #     api_status("Successfully loaded API data")  # Erfolgsmeldung
-   #   }, error = function(e) {
-   #     message("Fehler bei API-Call: ", e$message)
-   #     api_status(paste("Error ocurred when loading API data"))  # Fehlertext anzeigen
-   #   })
-   # })
-   
-   # Manuelle API-Datenabruf-Logik
-   # observeEvent(input$get_api_data, {
-   #   # Überprüfen, ob data_json() verfügbar ist
-   #   if (is.null(data_json()) || nrow(data_json()) == 0) {
-   #     api_status("Please upload a valid JSON file first.")  # Hinweis, wenn keine JSON-Daten vorhanden sind
-   #   } else {
-   #     api_status("API is processing, please wait...")  # Status setzen
-   #     
-   #     tryCatch({
-   #       # refresh_token()  # Hier ggf. Token-Refresh einfügen
-   #       extended_dataframe <- add_api_data(data_frame = data_json(), access = access_token, write_to_csv = FALSE, playtime_threshold = 5000)
-   #       data_extended(extended_dataframe)  # Speichert die erweiterte Tabelle
-   #       api_status("Successfully loaded API data")  # Erfolgsmeldung
-   #     }, error = function(e) {
-   #       message("Fehler bei API-Call: ", e$message)
-   #       api_status(paste("Error occurred when loading API data:"))  # Fehlertext anzeigen
-   #     })
-   #   }
-   # })
    
    observeEvent(input$get_api_data, {
      if (is.null(data_json()) || nrow(data_json()) == 0) {
@@ -499,16 +416,6 @@ server <- function(input, output, session) {
        })
      }
    })
-   
-   
-   # # Versuche, `add_api_data` mit den JSON-Daten aufzurufen
-   # data_extended <- reactive({
-   #   req(data_csv())  # Warten auf die JSON-Daten
-   #   if (!is.null(input$file_csv)) {
-   #     return(data_csv())  # JSON wird priorisiert
-   #   }
-   # })
-   
    
    # List of Top 10 albums for dropdown menu
    top_albums_list <- reactive({
@@ -531,12 +438,6 @@ server <- function(input, output, session) {
      top_artists(data_combined(), top_x = 15)$Artist  # Gibt die Artist-Namen zurück
    })
    
-   # Refresh dropdown
-   # observe({
-   #   updateSelectInput(session, "selected_artist",
-   #                     choices = top_artists_list(),
-   #                     selected = top_artists_list()[1])  # Erster Artist als Standard
-   # })
    
    # Refresh dropdown, second artist dropdown
    observe({
@@ -599,13 +500,6 @@ server <- function(input, output, session) {
      updateSelectizeInput(session, "search_track", choices = all_tracks_list(), server = TRUE)
    })
    
-   # Refresh dropdown
-   # observe({
-   #   updateSelectInput(session, "selected_track",
-   #                     choices = top_tracks_list(),
-   #                     selected = top_tracks_list()[1])  # Top track as default
-   # })
-   
    
    # Refresh second year dropdown menu
    observe({
@@ -644,14 +538,6 @@ server <- function(input, output, session) {
      api_status()
    })
    
-   # # Statusmeldung für die API
-   # output$api_status <- renderText({
-   #   if (is.null(data_extended())) {
-   #     return("API is processing, please wait...")  # Wird angezeigt, wenn API noch läuft
-   #   } else {
-   #     return("")  # Kein Text, wenn API fertig ist
-   #   }
-   # })
   
   # Kommentarblock
   output$quick_stats_comment <- renderPrint({
@@ -764,11 +650,6 @@ server <- function(input, output, session) {
     cat("Track listen counter for your favorite album\n")
   })
   
-  # Top Album Name
-  # output$top_album_name_comment <- renderPrint({
-  #   req(data_combined(), input$selected_album)
-  #   cat(input$selected_album)
-  # })
   
   output$top_album_tracks_table <- renderTable({
     req(data_combined())
@@ -826,12 +707,6 @@ server <- function(input, output, session) {
     cat("Top tracks of selected artist\n")
   })
   
-  # Textblock: Kommentar zu top_artist_name 
-  # output$top_artist_name_comment <- renderPrint({
-  #   req(data_combined())
-  #   top_artist_name <- top_artists(data_combined(), 1)$Artist_Name
-  #   cat(top_artist_name)
-  # })
   
   output$top_artist_tracks_table <- renderTable({
     req(data_combined())
@@ -866,13 +741,6 @@ server <- function(input, output, session) {
     cat("Top artists of each month by minutes played (recent year)\n")
   })
   
-  # Textblock: Ausgabe recent year
-  # output$recent_year_comment <- renderPrint({
-  #   req(data_combined())
-  #   years <- sort(unique(substr(data_combined()$ts, 1, 4)))
-  #   recent_year <- years[pmax(1, length(years) - 1)]
-  #   cat(recent_year)
-  # })
   
   output$artist_month_table <- renderTable({
     req(data_combined())

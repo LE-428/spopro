@@ -130,18 +130,6 @@ add_api_data <- function(data_frame = all_data, access = access_token, write_to_
     metadata_frame <- rbind(metadata_frame, metadata)
     
     
-    # Die restlichen Informationen werden abgerufen
-    
-    #api_table <- get_track_audio_features(id = ids, authorization = access_token)
-    #api_table <- subset(api_table, select = -c(track_href, type, uri, analysis_url))
-    #api_table$popularity <- popularities
-    
-    #if (nrow(output_table) == 0) {
-    #  output_table <- api_table
-    #} else {
-    #  output_table <- rbind(output_table, api_table)
-    #}
-    
   } # Ende der for-Schleife
   
   # Die Tabellen werden wieder zusammengefügt anhand von zusammengehörigen Track ids und Künstlernamen
