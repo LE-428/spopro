@@ -150,6 +150,19 @@ ui <- fluidPage(
       br(),
       br(),
       
+      verbatimTextOutput("artist_days_streak_comment"),
+      selectInput("selected_year_f", "Choose a year",
+                  choices = NULL,  # Will be filled later
+                  selected = NULL), # Default
+      tableOutput("artist_days_streak_table"),
+      
+      br(),
+      
+      tableOutput("artist_days_streak_table_all"),
+      
+      br(),
+      br(),
+      
       verbatimTextOutput("top_artists_comment"),
       selectInput("selected_year_d", "Choose a year",
                   choices = NULL,  # Will be filled later
@@ -258,6 +271,7 @@ ui <- fluidPage(
       
       
       ### EXTENDED
+      
       br(),
       
       verbatimTextOutput("extended_comment"),
@@ -526,6 +540,13 @@ server <- function(input, output, session) {
                        selected = years_list()[pmax(1, length(years_list()) - 1)])  # Last completed year as default
    })
    
+   # Refresh sixth year dropdown menu
+   observe({
+     updateSelectInput(session, "selected_year_f",
+                       choices = years_list(),
+                       selected = years_list()[pmax(1, length(years_list()) - 1)])  # Last completed year as default
+   })
+   
    
    output$demo_comment <- renderText({
      demo_comment()
@@ -665,6 +686,24 @@ server <- function(input, output, session) {
     recent_year <- input$selected_year_c
     recent_year_dataframe <- extract_year(recent_year, data_combined())
     track_per_year(recent_year_dataframe, top_x = 10)
+  })
+  
+  # Listening streaks
+  output$artist_days_streak_comment <- renderPrint({
+    req(data_combined())
+    cat("Longest streaks of continuous playback (of certain artist), selected year and all time")
+  })
+  
+  output$artist_days_streak_table <- renderTable({
+    req(data_combined(), input$selected_year_f)
+    recent_year <- input$selected_year_f
+    recent_year_dataframe <- extract_year(recent_year, data_combined())
+    artist_days_streak(recent_year_dataframe, top_x = 6)
+  })
+  
+  output$artist_days_streak_table_all <- renderTable({
+    req(data_combined())
+    artist_days_streak(data_combined(), top_x = 4)
   })
   
   # Textblock: Kommentar zu top_artists und Ausgabe der Tabelle

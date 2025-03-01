@@ -1,5 +1,20 @@
 # Return table with listening time per years
 
+# > time_year(all_le)
+# # A tibble: 10 × 2
+# Year  Minutes
+# <chr>   <int>
+#   1 2015       55
+# 2 2016       18
+# 3 2017       17
+# 4 2019     4746
+# 5 2020    21215
+# 6 2021    29922
+# 7 2022    29911
+# 8 2023    26269
+# 9 2024    20399
+# 10 Total  132552
+
 time_year <- function(df) {
   # Extract year from the timestamp
   df$ts <- substr(df$ts, 1, 4)

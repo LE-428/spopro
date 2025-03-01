@@ -1,5 +1,13 @@
 # Show table with countries and abbreviations
 
+# > country_list(all_le)
+# Country Abbreviation Streams
+# DE                  Germany           DE   54911
+# US United States of America           US     419
+# FR                   France           FR     123
+# GR                   Greece           GR      99
+# AT                  Austria           AT      24
+
 {
 
 library(jsonlite)

@@ -1,4 +1,13 @@
 # Die Künstler finden, welche am häufigsten in gehörten Features auftauchen
+
+# > top_featured_artists(all_mo, top_x = 5)
+# Artist_name Plays
+# 1     A$AP Rocky  1226
+# 2  Playboi Carti   806
+# 3   Travis Scott   644
+# 4 Kendrick Lamar   622
+# 5    Don Toliver   526
+
 {
 library(stringr)
 
