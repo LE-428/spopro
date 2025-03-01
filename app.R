@@ -1,6 +1,7 @@
 library(shiny)
 library(bslib)
 library(R.utils)
+library(plotly)
 
 options(shiny.maxRequestSize = 100*1024^2)  # Erhöht das Limit auf 50 MB
 
@@ -162,9 +163,8 @@ ui <- fluidPage(
       br(),
       
       verbatimTextOutput("artist_albums_comment"),
-      selectInput("selected_artist_b", "Choose an Artist",
-                  choices = NULL,  # Will be filled later
-                  selected = NULL), # Default
+      # Search bar
+      selectizeInput("search_artist_b", "Choose or search", choices = NULL),
       tableOutput("artist_albums_table"),
       
       br(),
@@ -439,14 +439,6 @@ server <- function(input, output, session) {
    })
    
    
-   # Refresh dropdown, second artist dropdown
-   observe({
-     updateSelectInput(session, "selected_artist_b",
-                       choices = top_artists_list(),
-                       selected = top_artists_list()[1])  # Erster Artist als Standard
-   })
-   
-   
    # List of available years
    years_list <- reactive({
      req(data_combined())  
@@ -488,6 +480,11 @@ server <- function(input, output, session) {
    # Update the dropdown menu after dataframe has been read (artists)
    observeEvent(data_combined(), {
      updateSelectizeInput(session, "search_artist", choices = all_artists_list(), server = TRUE)
+   })
+   
+   # Update the dropdown menu after dataframe has been read (most popular albums of selected artist)
+   observeEvent(data_combined(), {
+     updateSelectizeInput(session, "search_artist_b", choices = all_artists_list(), server = TRUE)
    })
    
    # Update the dropdown menu after dataframe has been read (albums)
@@ -696,8 +693,8 @@ server <- function(input, output, session) {
   
   
   output$artist_albums_table <- renderTable({
-    req(data_combined(), input$selected_artist_b)
-    selected_artist_escaped <- as.character(input$selected_artist_b)
+    req(data_combined())
+    selected_artist_escaped <- as.character(input$search_artist_b)
     artist_albums(data_combined(), artist_string = selected_artist_escaped, exact = TRUE, top_x = 5)
   })
   
