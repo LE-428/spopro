@@ -139,6 +139,10 @@ ui <- fluidPage(
       tableOutput("top_album_tracks_table"),
       
       br(),
+      
+      plotOutput("album_time_plot"),
+      
+      br(),
       br(),
       
       verbatimTextOutput("track_per_year_comment"),
@@ -673,6 +677,15 @@ server <- function(input, output, session) {
     req(data_combined())
     selected_album_escaped <- as.character(input$search_album)
     top_album_tracks(data_combined(), album_string = selected_album_escaped, exact_search_bool = TRUE)
+  })
+  
+  
+  output$album_time_plot <- renderPlot({
+    req(data_combined())
+    selected_album_escaped <- as.character(input$search_album)
+    if (selected_album_escaped != "---------------"){
+      album_time_plot(data_combined(), album_string = selected_album_escaped, exact = TRUE)
+    }
   })
   
   # Textblock: Kommentar zu track_per_year und Ausgabe der Tabelle
