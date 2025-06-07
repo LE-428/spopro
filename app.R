@@ -214,6 +214,15 @@ ui <- fluidPage(
       br(),
       br(),
       
+      verbatimTextOutput("artist_ranking_comment"),
+      selectInput("selected_year_g", "Choose a year",
+                  choices = NULL,  # Will be filled later
+                  selected = NULL), # Default
+      plotOutput("artist_ranking_table"),
+      
+      br(),
+      br(),
+      
       verbatimTextOutput("time_artist_activity_comment"),
       tableOutput("time_artist_activity_table"),
       
@@ -551,6 +560,13 @@ server <- function(input, output, session) {
                        selected = years_list()[pmax(1, length(years_list()) - 1)])  # Last completed year as default
    })
    
+   # Refresh seventh year dropdown menu
+   observe({
+     updateSelectInput(session, "selected_year_g",
+                       choices = years_list(),
+                       selected = years_list()[pmax(1, length(years_list()) - 1)])  # Last completed year as default
+   })
+   
    
    output$demo_comment <- renderText({
      demo_comment()
@@ -798,6 +814,21 @@ server <- function(input, output, session) {
     recent_year <- input$selected_year
     recent_year_dataframe <- extract_year(recent_year, data_combined())
     artist_month(recent_year_dataframe)
+  })
+  
+  # Textblock: Kommentar zu top_artist_ranking_plot
+  output$artist_ranking_comment <- renderPrint({
+    req(data_combined())
+    cat("Top 10 artists with cumulated listening time")
+  })
+  
+  
+  output$artist_ranking_table <- renderPlot({
+    req(data_combined())
+    # years <- sort(unique(substr(data_combined()$ts, 1, 4)))
+    # recent_year <- years[pmax(1, length(years) - 1)]
+    recent_year <- input$selected_year_g
+    top_artists_ranking_plot(data_combined(), recent_year)
   })
   
   # Textblock: Kommentar zu time_artist_activity und Ausgabe der Tabelle
