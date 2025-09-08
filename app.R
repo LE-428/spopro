@@ -167,6 +167,12 @@ ui <- fluidPage(
       br(),
       br(),
       
+      verbatimTextOutput("artist_days_comment"),
+      tableOutput("artist_days_table"),
+      
+      br(),
+      br(),
+      
       verbatimTextOutput("top_artists_comment"),
       selectInput("selected_year_d", "Choose a year",
                   choices = NULL,  # Will be filled later
@@ -308,6 +314,14 @@ ui <- fluidPage(
       
       verbatimTextOutput("release_years_plot_comment"),
       plotOutput("release_years_plot"),
+      
+      br(),
+      br(),
+      
+      verbatimTextOutput("artist_release_plot_comment"),
+      # Search bar
+      selectizeInput("search_artist_c", "Choose or search", choices = NULL),
+      plotOutput("artist_release_plot"),
       
       br(),
       br(),
@@ -512,6 +526,11 @@ server <- function(input, output, session) {
    # Update the dropdown menu after dataframe has been read (most popular albums of selected artist)
    observeEvent(data_combined(), {
      updateSelectizeInput(session, "search_artist_b", choices = all_artists_list(), server = TRUE)
+   })
+   
+   # Update the dropdown menu after dataframe has been read (release dates of selected artist)
+   observeEvent(data_combined(), {
+     updateSelectizeInput(session, "search_artist_c", choices = all_artists_list(), server = TRUE)
    })
    
    # Update the dropdown menu after dataframe has been read (albums)
@@ -733,6 +752,17 @@ server <- function(input, output, session) {
   output$artist_days_streak_table_all <- renderTable({
     req(data_combined())
     artist_days_streak(data_combined(), top_x = 4)
+  })
+  
+  # Artist days
+  output$artist_days_comment <- renderPrint({
+    req(data_combined())
+    cat("Artists with most different days of playback")
+  })
+  
+  output$artist_days_table <- renderTable({
+    req(data_combined())
+    top_artist_by_days(data_combined(), top_x = 15)
   })
   
   # Textblock: Kommentar zu top_artists und Ausgabe der Tabelle
@@ -992,6 +1022,18 @@ server <- function(input, output, session) {
   output$release_years_plot <- renderPlot({
     req(data_extended())
     release_years_plot(data_extended())
+  })
+  
+  # Textblock: Kommentar zu artist_release_plot
+  output$artist_release_plot_comment <- renderPrint({
+    req(data_extended())
+    cat("Plot of the releases of the artist \n")
+  })
+  
+  output$artist_release_plot <- renderPlot({
+    req(data_extended())
+    selected_artist_escaped <- as.character(input$search_artist_c)
+    artist_release_plot(data_extended(), artist_string = selected_artist_escaped, feature_search_bool = TRUE, exact_search = TRUE)
   })
   
   # Kommentar und Plot: Distribution of streams and follower number
