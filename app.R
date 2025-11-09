@@ -19,11 +19,15 @@ ui <- fluidPage(
     tags$p("Just like Spotify Wrapped, but digging deeper", style = "font-size: 14px; color: gray;"),
     style = "text-align: center;"
   ),
+  tags$head(
+    tags$link(rel = "icon", href = "favicon.ico")
+  ),
+  titlePanel("Spotify Analyzer"),
   sidebarLayout(
     sidebarPanel(
       
       tags$div(
-        tags$h4("Upload your JSON Files", style = "font-weight: bold; margin-top: 14px;"),
+        tags$h4("Upload your .json Files", style = "font-weight: bold; margin-top: 14px;"),
       ),
       
       fileInput("file", 
@@ -114,6 +118,13 @@ ui <- fluidPage(
       # Tabelle: Top Days Time
       verbatimTextOutput("top_days_comment"),
       tableOutput("top_days_table"),
+      
+      br(),
+      br(),
+      
+      # Tabelle: Tracks per Day Histogram
+      verbatimTextOutput("tracks_per_day_comment"),
+      plotOutput("tracks_per_day_plot"),
       
       br(),
       br(),
@@ -370,6 +381,12 @@ ui <- fluidPage(
       
       verbatimTextOutput("artist_cluster_plot_comment"),
       plotOutput("artist_cluster_plot_plot", width = "800px", height = "600px"),
+      
+      br(),
+      br(),
+      
+      verbatimTextOutput("completion_rate_comment"),
+      plotOutput("completion_rate_plot"),
       
       br(),
       br(),
@@ -679,6 +696,18 @@ server <- function(input, output, session) {
   output$top_days_table <- renderTable({
     req(data_combined())
     top_days_time(data_combined(), top_x = 10)
+  })
+  
+  #  Kommentarblock
+  output$tracks_per_day_comment <- renderPrint({
+    req(data_combined())
+    cat("Distribution of number of tracks played per day")
+  })
+  
+  # Tabelle: Top Days Time
+  output$tracks_per_day_plot <- renderPlot({
+    req(data_combined())
+    tracks_per_day_plot(data_combined())
   })
   
   # Kommentarblock
@@ -1130,6 +1159,17 @@ server <- function(input, output, session) {
   output$artist_cluster_plot_plot <- renderPlot({
     req(data_extended())
     artist_cluster_plot(data_extended())
+  })
+  
+  # Kommentar und Textblock: Track Completion Distribution Histogram
+  output$completion_rate_comment <- renderPrint({
+    req(data_extended())
+    cat("Histogram with number songs and their completion ratio")
+  })
+  
+  output$completion_rate_plot <- renderPlot({
+    req(data_extended())
+    completion_rate_plot(data_extended())
   })
   
   # Kommentar und Plot: Shuffle/Skip-Plot
