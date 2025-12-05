@@ -11,15 +11,36 @@ add_api_data <- function(data_frame = all_data, access = access_token, write_to_
   data_frame <- drop_podcasts(data_frame)
   # Die Tabelle wird aufbereitet, Spalten umbenannt, Spalten entfernt und die ids der Tracks abgeschnitten
   
+  cols_to_drop <- c(
+    "episode_name",
+    "episode_show_name",
+    "spotify_episode_uri",
+    "offline_timestamp",
+    "audiobook_chapter_uri",
+    "audiobook_chapter_title",
+    "audiobook_title",
+    "audiobook_uri"
+  )
+  
+  # Keep only those columns that exist in the data frame
+  cols_to_drop <- intersect(cols_to_drop, names(data_frame))
+  
   names(data_frame)[names(data_frame) == "spotify_track_uri"] <- "id"
-  data_frame <- subset(data_frame, !is.na(id), select = -c(
-                                               #platform, 
-                                               #username, 
-                                               #user_agent_decrypted, 
-                                               episode_name, 
-                                               episode_show_name, 
-                                               spotify_episode_uri, 
-                                               offline_timestamp))
+  if (length(cols_to_drop) > 0) {
+    data_frame <- data_frame[ , !(names(data_frame) %in% cols_to_drop), drop = FALSE]
+  }
+  # data_frame <- subset(data_frame, !is.na(id), select = -c(
+  #                                              #platform, 
+  #                                              #username, 
+  #                                              #user_agent_decrypted, 
+  #                                              episode_name, 
+  #                                              episode_show_name, 
+  #                                              spotify_episode_uri, 
+  #                                              offline_timestamp, 
+  #                                              audiobook_chapter_uri,
+  #                                              audiobook_chapter_title,
+  #                                              audiobook_title,
+  #                                              audiobook_uri))
   data_frame$id <- substring(data_frame$id, first = 15)
   # print(head(data_frame))
   # Längen der Tabellen mit je einer Zeile pro Lied/Künstler
@@ -28,6 +49,9 @@ add_api_data <- function(data_frame = all_data, access = access_token, write_to_
   
   # len_uniq_tracks = length(data_frame$id), alte Version
   # Jeden Künstler mit einer Zeile verwenden
+  print(nrow(data_frame))
+  print(sum(is.na(data_frame$master_metadata_album_artist_name))) 
+  print(head(data_frame))
   uniq_artists <- aggregate(. ~ master_metadata_album_artist_name,
                             data = data_frame, FUN = function(x) x[1])
   uniq_artists <- subset(uniq_artists, select = c(master_metadata_album_artist_name, id))
@@ -156,3 +180,4 @@ add_api_data <- function(data_frame = all_data, access = access_token, write_to_
   }
   return(almighty_table)
 }
+

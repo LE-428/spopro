@@ -27,7 +27,7 @@ ui <- fluidPage(
     sidebarPanel(
       
       tags$div(
-        tags$h4("Upload your .json Files", style = "font-weight: bold; margin-top: 14px;"),
+        tags$h4("Upload your .json files", style = "font-weight: bold; margin-top: 14px;"),
       ),
       
       fileInput("file", 
@@ -786,7 +786,7 @@ server <- function(input, output, session) {
   # Artist days
   output$artist_days_comment <- renderPrint({
     req(data_combined())
-    cat("Artists with most different days of playback")
+    cat("Artists with the most distinct listening days")
   })
   
   output$artist_days_table <- renderTable({

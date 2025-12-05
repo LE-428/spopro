@@ -51,6 +51,7 @@ top_tracks_over_time_plot <- function(data = all_data, save_plot = FALSE){
   
   
   # Plot
+
   p <- ggplot(combined_df, aes(x = factor(Jahr),y = id,group = Track, color = Track)) +
     geom_line(aes(x = factor(Jahr), y = id)) +
     geom_point(shape = 16, size = 1) + 
@@ -64,6 +65,7 @@ top_tracks_over_time_plot <- function(data = all_data, save_plot = FALSE){
     )
   print(p)
   
+  suppressWarnings(
   # Exportiere den ggplot als hochauflösendes PDF
   if (save_plot == TRUE) {
     ggsave(
@@ -75,6 +77,7 @@ top_tracks_over_time_plot <- function(data = all_data, save_plot = FALSE){
       dpi = 300                         # Auflösung (dots per inch)
     )
   }
+  )
   
   
   # return(combined_df)
