@@ -2,8 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
-api_creds.R
-Daten/
+Functions/api_creds.R
+Data/
 Plots/
 Import/
 rsconnect/

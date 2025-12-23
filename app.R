@@ -178,21 +178,33 @@ ui <- fluidPage(
       br(),
       br(),
       
+      verbatimTextOutput("track_time_span_comment"),
+      tableOutput("track_time_span"),
+      
+      br(),
+      br(),
+      
       verbatimTextOutput("artist_days_comment"),
       tableOutput("artist_days_table"),
       
       br(),
       br(),
       
-      verbatimTextOutput("top_artists_comment"),
+      verbatimTextOutput("unique_artists_cumulated_plot_comment"),
+      plotOutput("unique_artists_cumulated_plot"),
+      
+      br(),
+      br(),
+      
+      verbatimTextOutput("top_artists_time_comment"),
       selectInput("selected_year_d", "Choose a year",
                   choices = NULL,  # Will be filled later
                   selected = NULL), # Default
-      tableOutput("top_artists_table_recent"),
+      plotOutput("top_artists_time_plot_recent"),
       
       br(),
       
-      tableOutput("top_artists_table"),
+      plotOutput("top_artists_time_plot"),
       
       br(),
       
@@ -284,6 +296,12 @@ ui <- fluidPage(
       br(),
       br(),
       
+      verbatimTextOutput("least_skipped_comment"),
+      tableOutput("least_skipped_table"),
+      
+      br(),
+      br(),
+      
       verbatimTextOutput("most_skipped_comment"),
       tableOutput("most_skipped_table"),
       
@@ -299,6 +317,24 @@ ui <- fluidPage(
       verbatimTextOutput("recent_year_text"),
       plotOutput("activity_month_plot_recent"),
       
+      br(),
+      br(),
+      
+      verbatimTextOutput("activity_weekday_plot_comment"),
+      plotOutput("activity_weekday_plot"),
+      
+      br(),
+      br(),
+      
+      verbatimTextOutput("discovery_months_plot_comment"),
+      plotOutput("discovery_months_plot"),
+      
+      
+      br(),
+      br(),
+      
+      verbatimTextOutput("distinct_tracks_artists_plot_comment"),
+      plotOutput("distinct_tracks_artists_plot"),
       
       ### EXTENDED
       
@@ -325,6 +361,12 @@ ui <- fluidPage(
       
       verbatimTextOutput("release_years_plot_comment"),
       plotOutput("release_years_plot"),
+      
+      br(),
+      br(),
+      
+      verbatimTextOutput("release_years_over_months_plot_comment"),
+      plotlyOutput("release_years_over_months_plot"),
       
       br(),
       br(),
@@ -404,7 +446,7 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   # Standard-Daten aus einer Demo-CSV im Projektverzeichnis laden
-  default_data <- read.csv("demo.csv")  # Ersetze durch deinen tatsächlichen Dateipfad
+  default_data <- read.csv("Demo\\demo.csv")  # Ersetze durch deinen tatsächlichen Dateipfad
   
   # Standardwerte für die Reactives setzen
   data_combined <- reactiveVal(default_data)
@@ -783,6 +825,18 @@ server <- function(input, output, session) {
     artist_days_streak(data_combined(), top_x = 4)
   })
   
+  # comment for track_time_span and plot
+  output$track_time_span_comment <- renderPrint({
+    req(data_combined())
+    cat("Tracks with biggest timespan (in days) between first and latest stream")
+  })
+  
+  output$track_time_span <- renderTable({
+    req(data_combined())
+    track_time_span(data_combined(), top_x = 10)
+  })
+  
+  
   # Artist days
   output$artist_days_comment <- renderPrint({
     req(data_combined())
@@ -794,22 +848,33 @@ server <- function(input, output, session) {
     top_artist_by_days(data_combined(), top_x = 15)
   })
   
+  # Number of unique artists cumulated plot
+  output$unique_artists_cumulated_plot_comment <- renderPrint({
+    req(data_combined())
+    cat("Number of distinct artists in dataset summed up over time")
+  })
+  
+  output$unique_artists_cumulated_plot <- renderPlot({
+    req(data_combined())
+    unique_artists_cumulated_plot(data_combined())
+  })
+  
   # Textblock: Kommentar zu top_artists und Ausgabe der Tabelle
-  output$top_artists_comment <- renderPrint({
+  output$top_artists_time_comment <- renderPrint({
     req(data_combined())
     cat("Top artists by minutes played (selected year and all time)\n")
   })
   
-  output$top_artists_table_recent <- renderTable({
+  output$top_artists_time_plot_recent <- renderPlot({
     req(data_combined(), input$selected_year_d)
     recent_year <- input$selected_year_d
     recent_year_dataframe <- extract_year(recent_year, data_combined())
-    top_artists(recent_year_dataframe, top_x = 10)
+    top_artists_time_plot(recent_year_dataframe, top_x = 10)
   })
   
-  output$top_artists_table <- renderTable({
+  output$top_artists_time_plot <- renderPlot({
     req(data_combined())
-    top_artists(data_combined(), top_x = 15)
+    top_artists_time_plot(data_combined(), top_x = 15)
   })
   
   # Textblock: Kommentar zu artist_albums und Ausgabe der Tabelle
@@ -960,6 +1025,16 @@ server <- function(input, output, session) {
     }
   )
 
+  # least_skipped comment and table
+  output$least_skipped_comment <- renderPrint({
+    req(data_combined())
+    cat("Tracks that have been skipped the least often\n")
+  })
+  
+  output$least_skipped_table <- renderTable({
+    req(data_combined())
+    least_skipped(data_combined(), top_x = 10)
+  })
   
   # Textblock: Kommentar zu most_skipped und Ausgabe der Tabelle
   output$most_skipped_comment <- renderPrint({
@@ -994,6 +1069,39 @@ server <- function(input, output, session) {
     recent_year <- years[pmax(1, length(years) - 1)]
     recent_year_dataframe <- extract_year(recent_year, data_combined())
     activity_month_plot(recent_year_dataframe)
+  })
+  
+  # Textblock: Kommentar zu activity_weekday_plot und Ausgabe der Plots
+  output$activity_weekday_plot_comment <- renderPrint({
+    req(data_combined())
+    cat("Minutes played by weekday")
+  })
+  
+  output$activity_weekday_plot <- renderPlot({
+    req(data_combined())
+    activity_weekday_plot(data_combined())
+  })
+  
+  # comment for discovery_months_plot and plot
+  output$discovery_months_plot_comment <- renderPrint({
+    req(data_combined())
+    cat("Months with number of plays resulting from first stream in respective month")
+  })
+  
+  output$discovery_months_plot <- renderPlot({
+    req(data_combined())
+    discovery_months_plot(data_combined())
+  })
+  
+  # comment for distinct_artists_time_plot and plot
+  output$distinct_tracks_artists_plot_comment <- renderPrint({
+    req(data_combined())
+    cat("Number of streams vs. unique artists/tracks per month")
+  })
+  
+  output$distinct_tracks_artists_plot <- renderPlot({
+    req(data_combined())
+    distinct_tracks_artists_plot(data_combined())
   })
   
   
@@ -1051,6 +1159,18 @@ server <- function(input, output, session) {
   output$release_years_plot <- renderPlot({
     req(data_extended())
     release_years_plot(data_extended())
+  })
+  
+  # comment for 3d release_years_over_months_plot and plot
+  output$release_years_over_months_plot_comment <- renderPrint({
+    req(data_extended())
+    cat("3D-density plot with months in dataset and release years of listened songs\n")
+  })
+  
+  output$release_years_over_months_plot <- renderPlotly({
+    req(data_extended())
+    p <- release_years_over_months_plot(data_extended())
+    ggplotly(p, tooltip = "text")
   })
   
   # Textblock: Kommentar zu artist_release_plot
@@ -1153,7 +1273,7 @@ server <- function(input, output, session) {
   # Kommentar und Textblock: Artist Cluster Plot
   output$artist_cluster_plot_comment <- renderPrint({
     req(data_extended())
-    cat("Scatterplot with one point per artist: Artist with follower count and average song length")
+    cat("Scatterplot with one dot per artist: follower count and average song length")
   })
   
   output$artist_cluster_plot_plot <- renderPlot({
@@ -1164,7 +1284,7 @@ server <- function(input, output, session) {
   # Kommentar und Textblock: Track Completion Distribution Histogram
   output$completion_rate_comment <- renderPrint({
     req(data_extended())
-    cat("Histogram with number songs and their completion ratio")
+    cat("Histogram with number of songs and their completion ratio")
   })
   
   output$completion_rate_plot <- renderPlot({
@@ -1177,8 +1297,7 @@ server <- function(input, output, session) {
     req(data_extended())
     cat("Plot showcasing the different phases of track listening: early skipping,
         stable behavior during the middle, early track ending (outro etc.),
-        more early and less late skips with shuffled tracks, 
-        user not actively controlling playback?")
+        more early and less late skips with shuffled tracks")
   })
   
   output$distribution_shuffle_plot <- renderPlot({

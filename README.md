@@ -1,16 +1,22 @@
 # Analysis of Spotify all time history with R
 
-Download your Spotify extended streaming history and take a look at your favorite songs, albums etc.
-Get started with `wrapped.R`
+Request your Spotify extended streaming history (from [here](https://www.spotify.com/us/account/privacy/)) and take a look at your favorite songs, albums etc.
 
-You can also directly upload your JSON-files and get an overview here: <https://lebot.shinyapps.io/spotify/>
+It is recommended to begin with `getting_started.r`. This will guide you through the process of importing your data and settings up the API connection (optional) and you can try out the functions (from the `Functions` folder).
 
-If you want to analyze even further, you can set up access to the Spotify Web API with your account at <https://developer.spotify.com/documentation/web-api>
-You can then use the function `add_api_data.R`
-
+You can also directly upload your .json files and get an overview here: <https://lebot.shinyapps.io/spotify/>
 
 ## Ideas
 
-+ World map showing from which country/IP-address you have connected in the past
-+ Favorite genres and favorite artists of these genres (plot/animation)
-+ ... additions?
+-   World map showing from which country/IP-address you have connected in the past
+-   Additions? Feel free to contribute
+
+![Listening time per year](Images/ltpy.png)
+
+![Top artists listening time accumulated](Images/tacm.png)
+
+![3D plot with release date of streams and months in dataset](Images/3ddp.png)
+
+![Histogram of number of tracks listened per day](Images/tpd.png)
+
+![Artist feature graph](Images/afg.png)
