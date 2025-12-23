@@ -446,7 +446,7 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   # Standard-Daten aus einer Demo-CSV im Projektverzeichnis laden
-  default_data <- read.csv("Demo\\demo.csv")  # Ersetze durch deinen tatsächlichen Dateipfad
+  default_data <- read.csv("Demo/demo.csv")  # Ersetze durch deinen tatsächlichen Dateipfad
   
   # Standardwerte für die Reactives setzen
   data_combined <- reactiveVal(default_data)
