@@ -77,7 +77,7 @@ unique_artists_cumulated_plot <- function(df) {
       y = "Cumulative number of distinct artists"
     ) +
     theme_minimal() +
-    scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+    scale_x_date(date_labels = "%b %Y", date_breaks = "3 month") +
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
       plot.title = element_text(hjust = 0.5),

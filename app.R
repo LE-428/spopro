@@ -336,6 +336,18 @@ ui <- fluidPage(
       verbatimTextOutput("distinct_tracks_artists_plot_comment"),
       plotOutput("distinct_tracks_artists_plot"),
       
+      br(),
+      br(),
+      
+      verbatimTextOutput("artist_transitions_plot_comment"),
+      plotOutput("artist_transitions_plot"), 
+      
+      br(),
+      br(),
+      
+      verbatimTextOutput("artist_transition_prediction_comment"),
+      tableOutput("artist_transition_prediction_table"),
+      
       ### EXTENDED
       
       br(),
@@ -1104,6 +1116,29 @@ server <- function(input, output, session) {
     distinct_tracks_artists_plot(data_combined())
   })
   
+  # comment for artist_transitions_plot and comment
+  output$artist_transitions_plot_comment <- renderPrint({
+    req(data_combined())
+    cat("Transitions between artists while listening")
+  })
+  
+  output$artist_transitions_plot <- renderPlot({
+    req(data_combined())
+    artist_transitions_plot(data_combined())
+  })
+  
+  # artist_transition_prediction table and comment
+  output$artist_transition_prediction_comment <- renderPrint({
+    req(data_combined())
+    cat("Artists which appeared after each other \n most consistently during listening sessions")
+  })
+  
+  output$artist_transition_prediction_table <- renderTable({
+    req(data_combined())
+    artist_transition_prediction(data_combined(), top_x = 5)
+    # df <- df[, -c("n_unique_pairs", "total_unique_outgoing")]
+    # return(df)
+  })
   
   ### EXTENDED DATAFRAME
   
